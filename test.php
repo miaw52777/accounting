@@ -81,14 +81,6 @@ function delOverhead(guid)
 	}
 }
 
-function addOverhead()
-{
-	var overhead_data = new Object;
-	overhead_data["overhead_type"] = document.getElementById("overhead_type").value;
-	
-	alert(JSON.stringify(overhead_data));
-	window.location.href = "insertOverhead.php?data="+JSON.stringify(overhead_data);
-}
 
 // initial page load
 var show_statistic_time = false;
@@ -106,15 +98,14 @@ var show_overhead_time = false;
 			<img src="./image/checkout_day.png" id="img_checkoutday_title" height="30" width="30" alt="結帳日" title="結帳日 : <? echo getToday();?>" onclick="show_checkoutday_text();"> </img>
 			<input type="date" id="statistict_time" name="statistict_time" value="<? echo getToday();?>" style="display:none" onchange="statistict_time_change(this.value);"/>
 			
-			<!--
-			<input type="image" src="./image/new.png" alt="新增" id="addOverhead" name="addOverhead" height="30" width="30" value="+" />Required
-			-->	
 			
-			<img src="./image/new.png" id="img_overhead_add" height="30" width="30" alt="新增" title="新增" onclick="addOverhead();"> </img>	
+			<input type="image" src="./image/new.png" alt="新增" id="addOverhead" name="addOverhead" height="30" width="30" value="+" />
+			<!--
+			<img src="./image/new.png" id="img_overhead_add" height="30" width="30" alt="新增" title="新增" onclick="addOverhead();"> </img>	-->	
 		</div>
 		
 		
-		<input name="overhead_Item" id="overhead_Item" type="text" size="10" placeholder="項目" list="overhead_Item_list" Autofocus="on"  />	 
+		<input name="overhead_Item" id="overhead_Item" type="text" size="10" placeholder="項目" list="overhead_Item_list" Autofocus="on" Required />	 
 		<datalist id="overhead_Item_list"> 
 			<option>加油</option> 
 			<option>早餐</option> 
@@ -122,7 +113,7 @@ var show_overhead_time = false;
 			<option>晚餐</option> 
 		</datalist>
 		
-		<b><font color="#EE7700">NT$ </font></b><input name="overheadDollar" id="overheadDollar" type="text" size="10" placeholder="開銷總額" />
+		<b><font color="#EE7700">NT$ </font></b><input name="overheadDollar" id="overheadDollar" type="text" size="10" Required placeholder="開銷總額" />
 		<b><font color="#EE7700">PNT$ </font></b><input name="PersonalDollar" id="PersonalDollar" type="text" size="10" placeholder="個人開銷金額" />
 		
 				
@@ -182,14 +173,12 @@ var show_overhead_time = false;
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js "></script>
 <script>
 $(document).ready(function(){
-		
     $('#overheadForm').submit(function(){
      
         $.ajax({
-            type: 'POST',			
+            type: 'POST',
             url: 'insertOverhead.php', 
-            data: "X"
-            
+            data: $(this).serialize()
         })
         .done(function(data){
              

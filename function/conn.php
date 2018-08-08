@@ -1,6 +1,23 @@
 <?php
 
+include ("GetSQLValueString.php");
+if(!function_exists('json_encode'))
+{
+	include('JSON.php');
+	function json_encode($val)
+	{
+		$json = new Services_JSON();
+		return $json->encode($val);
+	}
 
+	function json_decode($val)
+	{
+		$json = new Services_JSON();
+		return $json->decode($val);
+	}
+}
+  
+  
 $sql_hostname = "localhost";
 $sql_database = "accounting";
 $sql_username = "miaw";
