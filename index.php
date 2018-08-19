@@ -82,10 +82,60 @@ function addOverhead()
 	overhead_data["statistict_time"] =  document.getElementById("statistict_time").value;		
 	overhead_data["user_id"] =  "<? echo $user_id; ?>";		
 	
+	if(Number.isInteger(Number(overhead_data["overheadDollar"])) == false)
+	{	
+		alert("開銷總額必須是數字!");
+		return;
+	}
+	if(Number.isInteger(Number(overhead_data["PersonalDollar"])) == false)
+	{	
+		alert("個人開銷必須是數字!");
+		return;
+	}
 	
+	if(overhead_data["overhead_Item"] == "")
+	{
+		document.getElementById("overhead_Item").style.backgroundColor = "red";		
+		alert("項目不可為空!!");
+		return;
+	}
+	if(overhead_data["overheadDollar"] == "")
+	{
+		document.getElementById("overheadDollar").style.backgroundColor = "red";		
+		alert("開銷總額不可為空!!");
+		return;
+	}
+	else
+	{	
+		//alert(JSON.stringify(overhead_data));
+		window.location.href = "insertOverhead.php?data="+JSON.stringify(overhead_data);
+	}
+}
+function checkIsNum(sobject)
+{	
+	if(Number.isInteger(Number(sobject.value)) == false)
+	{				
+		sobject.style.backgroundColor = "red";
+	}
+	else{sobject.style.backgroundColor = "";}
 	
-	//alert(JSON.stringify(overhead_data));
-	window.location.href = "insertOverhead.php?data="+JSON.stringify(overhead_data);
+}
+
+function radioOverheadtypeSelect(overheadtype)
+{	
+	//window.location.href = "selectOverhead.php?user_id=<? echo $user_id; ?>&overhead_type_radio=" + overheadtype;
+	
+	window.location.href = "?user_id=<? echo $user_id; ?>&overhead_type_radio=" + overheadtype;
+	/*if(overheadtype == "personal")
+	{
+		document.getElementById("overhead_type_radio_personal").checked = true;
+		document.getElementById("overhead_type_radio_overall").checked = false;
+	}
+	else
+	{
+		document.getElementById("overhead_type_radio_personal").checked = false;
+		document.getElementById("overhead_type_radio_overall").checked = true;
+	}*/
 }
 
 // initial page load
@@ -103,16 +153,15 @@ var show_overhead_time = false;
 			<input type="time" id="overhead-time" name="overhead-time" value="<? echo getNowTime(); ?>" style="display:none" onchange="overhead_time_change();"/>
 			<img src="./image/checkout_day.png" id="img_checkoutday_title" height="30" width="30" alt="結帳日" title="結帳日 : <? echo getToday();?>" onclick="show_checkoutday_text();"> </img>
 			<input type="date" id="statistict_time" name="statistict_time" value="<? echo getToday();?>" style="display:none" onchange="statistict_time_change(this.value);"/>
-			
-			<!--
-			<input type="image" src="./image/new.png" alt="新增" id="addOverhead" name="addOverhead" height="30" width="30" value="+" />Required
-			-->	
-			
+<!--			
+			<input type="image" src="./image/new.png" alt="新增" id="addOverhead" name="addOverhead" height="30" width="30" />
+		-->		
 			<img src="./image/new.png" id="img_overhead_add" height="30" width="30" alt="新增" title="新增" onclick="addOverhead();"> </img>	
+		
 		</div>
 		
 		
-		<input name="overhead_Item" id="overhead_Item" type="text" size="10" placeholder="項目" list="overhead_Item_list" Autofocus="on"  />	 
+		<input name="overhead_Item" id="overhead_Item" type="text" size="10" placeholder="項目" list="overhead_Item_list" Autofocus="on"  required />	 
 		<datalist id="overhead_Item_list"> 
 			<option>加油</option> 
 			<option>早餐</option> 
@@ -120,8 +169,8 @@ var show_overhead_time = false;
 			<option>晚餐</option> 
 		</datalist>
 		
-		<b><font color="#EE7700">NT$ </font></b><input name="overheadDollar" id="overheadDollar" type="text" size="10" placeholder="開銷總額" />
-		<b><font color="#EE7700">PNT$ </font></b><input name="PersonalDollar" id="PersonalDollar" type="text" size="10" placeholder="個人開銷金額" />
+		<b><font color="#EE7700">NT$ </font></b><input name="overheadDollar" id="overheadDollar" type="text" size="10" onchange="checkIsNum(this);" placeholder="開銷總額" required />
+		<b><font color="#EE7700">PNT$ </font></b><input name="PersonalDollar" id="PersonalDollar" type="text" size="10" placeholder="個人開銷金額" onchange="checkIsNum(this);"/>
 		
 				
 		
@@ -172,7 +221,7 @@ var show_overhead_time = false;
 			 </div>
 		</div>
 		
-	</form>
+	
  
 	<?
 		if(isset($_GET['result']))
@@ -201,15 +250,42 @@ var show_overhead_time = false;
 		
 		echo 'Show 50 records.(default)<br>';
 		
+		
+		 
+		$overhead_type_radio = $_GET['overhead_type_radio'];	
+		if($overhead_type_radio == "") $overhead_type_radio='personal';
+		
+		
+		if($overhead_type_radio == 'personal')
+		{
+			echo '<input type="radio" name="overhead_type_radio" onclick="radioOverheadtypeSelect(\'personal\');" checked>個人開銷 
+				  <input type="radio" name="overhead_type_radio" onclick="radioOverheadtypeSelect(\'overall\');">全部開銷 <br>';
+		}
+		else 
+		{
+			echo '<input type="radio" name="overhead_type_radio" onclick="radioOverheadtypeSelect(\'personal\');">個人開銷 
+			  <input type="radio" name="overhead_type_radio" onclick="radioOverheadtypeSelect(\'overall\');" checked>全部開銷 <br>';			
+		}
+		//echo base64_decode($actionArray['data_record']);
 		$queryOverheadRecordResult = getOverheadRecord($user_id);
 		if($queryOverheadRecordResult["RESULT"])
 		{
 		    // 顯示開銷
+			$count = 1;
+			
 			while($temp=mysqli_fetch_assoc($queryOverheadRecordResult['DATA']))
 			{
-				echo '消費時間 : '.$temp['rectime'].', 結帳時間 : '.$temp['statistic_time'].$temp['overhead_category'].' '.$temp['overhead_item'].' NT$'.$temp['nt'].' PNT$'.$temp['pnt'];
+				if($overhead_type_radio == "personal")
+				{
+					echo 'Rec.'.$count.' 消費時間 : '.$temp['rectime'].', 結帳時間 : '.$temp['statistic_time'].$temp['overhead_category'].' '.$temp['overhead_item'].' NT$'.$temp['pnt'];
+				}
+				else
+				{
+					echo 'Rec.'.$count.' 消費時間 : '.$temp['rectime'].', 結帳時間 : '.$temp['statistic_time'].$temp['overhead_category'].' '.$temp['overhead_item'].' NT$'.$temp['nt'];
+				}
 				echo '<img src="./image/delete.png" id="img_overhead_delete" height="30" width="30" alt="刪除" title="刪除" onclick="delOverhead(\''.$temp['guid'].'\');"> </img>';
 				echo '<br>';
+				$count++;
 			}
 		}
 		else
@@ -219,6 +295,7 @@ var show_overhead_time = false;
 	?>
 	<!-- where the response will be displayed -->
 	<div id='response'></div>
+	</form>
 </fieldset>	
 
  
