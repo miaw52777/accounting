@@ -6,20 +6,6 @@ include_once("function/OverheadFunc.php");
 
 $user_id = "miaw52777";
 
-
-//var_dump($_POST['is_statistic']);
-
-//var_dump($_POST['action']);
-/*
-if(isset($_POST['data'])){			    
-	if (get_magic_quotes_gpc()) {
-		$_POST['data'] = stripslashes($_POST['data']);					
-	}
-	echo json_encode(SaveProblem(json_decode($_POST['data'],true)));
-}else{
-	echo json_encode(array("success" => false ,"err"=>'nodata'));
-}*/
-
 ?>
 <html>
 <head>
@@ -84,9 +70,21 @@ function delOverhead(guid)
 function addOverhead()
 {
 	var overhead_data = new Object;
-	overhead_data["overhead_type"] = document.getElementById("overhead_type").value;
+	overhead_data["is_statistic"] =  document.getElementById("is_statistic").value;
+	overhead_data["overhead_type"] =  document.getElementById("overhead_type").value;	
+	overhead_data["overhead_category"] =  document.getElementById("overhead_category").value;
+	overhead_data["overhead_Item"] =  document.getElementById("overhead_Item").value;
+	overhead_data["overhead_Method"] =  document.getElementById("overhead_Method").value;
+	overhead_data["overheadDollar"] =  document.getElementById("overheadDollar").value;
+	overhead_data["PersonalDollar"] =  document.getElementById("PersonalDollar").value;
+	overhead_data["memo"] =  document.getElementById("memo").value;
+	overhead_data["overhead-date"] =  document.getElementById("overhead-date").value + " " + document.getElementById("overhead-time").value;
+	overhead_data["statistict_time"] =  document.getElementById("statistict_time").value;		
+	overhead_data["user_id"] =  "<? echo $user_id; ?>";		
 	
-	alert(JSON.stringify(overhead_data));
+	
+	
+	//alert(JSON.stringify(overhead_data));
 	window.location.href = "insertOverhead.php?data="+JSON.stringify(overhead_data);
 }
 
@@ -141,11 +139,11 @@ var show_overhead_time = false;
 		 
 		 ?>
 		</select>
-		 <select name="overhead_category">
+		 <select name="overhead_category" id = "overhead_category">
 			　<option value="支出" style="color:red">支出</option>
 			　<option value="收入" style="color:green"> 收入</option>					
 		</select>
-		 <select name="overhead_Method">
+		 <select name="overhead_Method" id="overhead_Method">
 		 <?
 			
 			$returnMsg = getOverheadMethod($user_id);	
@@ -164,52 +162,66 @@ var show_overhead_time = false;
 		
 		 ?>
 		 </select>	
-		 <input type="checkbox" name="is_statistic">此筆不納入統計
+		 <input type="checkbox" name="is_statistic" id="is_statistic">此筆不納入統計
 		 
 		 
 		 <br>
 			 備註:<br>
 			 <div>
-				<textarea name="memo" style="height: 50px;width:400px;"></textarea>		
+				<textarea name="memo" id="memo" style="height: 50px;width:400px;"></textarea>		
 			 </div>
 		</div>
+		
 	</form>
  
+	<?
+		if(isset($_GET['result']))
+		{
+			// send insert or delete, then show result
+			$actionArray = json_decode($_GET['result'], true);
+			if($actionArray['action'] == 'insert')
+			{
+				echo '新增';				
+			}
+			else if($actionArray['action'] == 'delete')
+			{
+				echo '刪除';				
+			}
+			if($actionArray['success'] = 'true')
+			{
+				echo "成功!!";
+			}
+			else
+			{
+				echo  "Error : ".$actionArray["err"];
+			}
+			
+			echo '<br>';
+		}
+		
+		echo 'Show 50 records.(default)<br>';
+		
+		$queryOverheadRecordResult = getOverheadRecord($user_id);
+		if($queryOverheadRecordResult["RESULT"])
+		{
+		    // 顯示開銷
+			while($temp=mysqli_fetch_assoc($queryOverheadRecordResult['DATA']))
+			{
+				echo '消費時間 : '.$temp['rectime'].', 結帳時間 : '.$temp['statistic_time'].$temp['overhead_category'].' '.$temp['overhead_item'].' NT$'.$temp['nt'].' PNT$'.$temp['pnt'];
+				echo '<img src="./image/delete.png" id="img_overhead_delete" height="30" width="30" alt="刪除" title="刪除" onclick="delOverhead(\''.$temp['guid'].'\');"> </img>';
+				echo '<br>';
+			}
+		}
+		else
+		{
+			echo 'Get Overhead Records Error : '. $queryOverheadRecordResult["MSG"];
+		}
+	?>
 	<!-- where the response will be displayed -->
 	<div id='response'></div>
 </fieldset>	
+
  
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js "></script>
-<script>
-$(document).ready(function(){
-		
-    $('#overheadForm').submit(function(){
-     
-        $.ajax({
-            type: 'POST',			
-            url: 'insertOverhead.php', 
-            data: "X"
-            
-        })
-        .done(function(data){
-             
-            // show the response
-            $('#response').html(data);
-             
-        })
-        .fail(function() {
-         
-            // just in case posting your form failed
-            alert( "Posting failed." );
-             
-        });
- 
-        // to prevent refreshing the whole page page
-        return false;
- 
-    });
-});
-</script>
  
 </body>
 </html>

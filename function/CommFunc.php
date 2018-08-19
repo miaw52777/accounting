@@ -160,21 +160,21 @@ function SplitString($str,$delimeter = ",")
 } 
 function getNowTime()
 {
-   //date_default_timezone_set("Asia/Taipei"); 
+   date_default_timezone_set("Asia/Taipei"); 
    $rectime = date("H:i:s"); 
    return $rectime;
 }
 
 function getToday()
 {
-   //date_default_timezone_set("Asia/Taipei"); 
+   date_default_timezone_set("Asia/Taipei"); 
    $rectime = date("Y-m-d"); 
    return $rectime;
 }
 
 function getNowTimeFordatePicker()
 {
-   //date_default_timezone_set("Asia/Taipei"); 
+   date_default_timezone_set("Asia/Taipei"); 
    $rectime = date("Y-m-d")."T".date("H:i:s"); 
    return $rectime;
 }

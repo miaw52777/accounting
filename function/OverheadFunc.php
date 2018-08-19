@@ -9,6 +9,21 @@ function getOverheadMethod($user_id)
 	$returnMsg = QuerySQL($querySQL);		
 	return $returnMsg;
 }
+//查詢開銷
+function getOverheadRecord($user_id, $limit=50)
+{
+	include_once("conn.php");	
+	include_once("CommFunc.php");	
+	$querySQL = 'SELECT * FROM overhead_record where 1=1 and user_id="'.$user_id.'" ';	
+	$querySQL .= ' order by rectime desc ';
+	if($limit > 0) 
+	{ // no limit, show all`
+		$querySQL .= ' limit '.$limit; //default show 50 records.
+	}
+	$returnMsg = QuerySQL($querySQL);		
+	return $returnMsg;	
+}
+
 
 //新增開銷
 function newOverhead($guid,$user_id,$is_statistic,$type,$category,$item,$method,$total_nt,$personal_nt,$memo,$statistic_time,$rectime)
@@ -28,6 +43,7 @@ function newOverhead($guid,$user_id,$is_statistic,$type,$category,$item,$method,
 	return $returnMsg;	
 }
 
+// 刪除開銷
 function deleteOverheadRecord($guid)
 {
 	$sql = "delete from overhead_record where 1=1 and guid = '$guid'";

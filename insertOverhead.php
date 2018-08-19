@@ -1,34 +1,51 @@
 ﻿<?
+include_once("function/conn.php");
+include_once("function/CommFunc.php");
+include_once("function/OverheadFunc.php"); 
 
 //var_dump($_GET);
-echo json_encode(array("success" => false ,"err"=>"nodata"));
-/*
-if(isset($_REQUEST))
+//echo "<br>";echo "<br>";echo "<br>";echo "<br>";
+$dataArray = json_decode($_GET['data'], true);
+
+
+
+if($dataArray['is_statistic'] == "on")
 {
-	if($_POST['is_statistic'] == "on")
-	{
-		$is_statistic = 'F';
-	}		
-	else
-	{
-		$is_statistic = 'T';
-	}
+	$is_statistic = 'F';
+}		
+else
+{
+	$is_statistic = 'T';
+}
 
-	$type = $_POST['overhead_type'];
-	$category = $_POST['overhead_category'];
-	$item = $_POST['overhead_Item'];
-	$method = $_POST['overhead_Method'];
-	$total_nt = $_POST['overheadDollar'];
-	$personal_nt = $_POST['PersonalDollar'];
-	$memo = $_POST['memo'];
-	$rectime =  $_POST['overhead-date'].' '.$_POST['overhead-time'];
-	$statistict_time = $_POST['statistict_time'];
-	if($personal_nt == "")
-	{
-		$personal_nt = $total_nt;
-	}
+$type = $dataArray['overhead_type'];
+$category = $dataArray['overhead_category'];
+$item = $dataArray['overhead_Item'];
+$method = $dataArray['overhead_Method'];
+$total_nt = $dataArray['overheadDollar'];
+$personal_nt = $dataArray['PersonalDollar'];
+$memo = $dataArray['memo'];
+$rectime =  $dataArray['overhead-date'];
+$statistict_time = $dataArray['statistict_time'];
+if($personal_nt == "")
+{
+	$personal_nt = $total_nt;
+}
+$user_id = $dataArray['user_id'];
 
-	$guid = guid();
-	$insert_result = newOverhead($guid, $user_id,$is_statistic,$type,$category,$item,$method,$total_nt,$personal_nt,$memo, $statistict_time,$rectime);
-}	*/
+$guid = guid();
+
+$insert_result = newOverhead($guid, $user_id,$is_statistic,$type,$category,$item,$method,$total_nt,$personal_nt,$memo, $statistict_time,$rectime);
+
+if($insert_result == "")
+{
+	$result = json_encode(array("action"=> "insert","success" => true ,"err"=>""));
+}
+else
+{
+	$result = json_encode(array("action"=> "insert", "success" => false ,"err"=>$insert_result["MSG"]));
+}
+
+header("location:index.php?result=".$result);
+
 ?>
