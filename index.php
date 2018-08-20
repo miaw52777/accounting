@@ -12,7 +12,9 @@ $user_id = "miaw52777";
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
-<title>Miaw Accounting Room</title>
+<? require_once('./header/title.php');  ?>
+
+<link rel="stylesheet" type="text/css" href="./css/leftMenu.css">
 </head>
   
 <script type="text/javascript">
@@ -137,13 +139,22 @@ function radioOverheadtypeSelect(overheadtype)
 		document.getElementById("overhead_type_radio_overall").checked = true;
 	}*/
 }
-
+function sel_overhead_Item_chamge(value)
+{
+	document.getElementById("overhead_Item").value = value;	
+}
 // initial page load
 var show_statistic_time = false;
 var show_overhead_time = false;
 </script>
 
-<fieldset>
+<? 
+	require_once('./header/topHeader.php'); 
+	echo menuList("Home");
+?> 
+
+<div>  
+  <fieldset>
 	<legend>新的開銷</legend>
 	<form id='overheadForm'>
 		<div>			
@@ -160,21 +171,13 @@ var show_overhead_time = false;
 		
 		</div>
 		
-		
-		<input name="overhead_Item" id="overhead_Item" type="text" size="10" placeholder="項目" list="overhead_Item_list" Autofocus="on"  required />	 
-		<datalist id="overhead_Item_list"> 
-			<option>加油</option> 
-			<option>早餐</option> 
-			<option>午餐</option> 
-			<option>晚餐</option> 
-		</datalist>
-		
-		<b><font color="#EE7700">NT$ </font></b><input name="overheadDollar" id="overheadDollar" type="text" size="10" onchange="checkIsNum(this);" placeholder="開銷總額" required />
-		<b><font color="#EE7700">PNT$ </font></b><input name="PersonalDollar" id="PersonalDollar" type="text" size="10" placeholder="個人開銷金額" onchange="checkIsNum(this);"/>
-		
-				
-		
-		 <br>
+		<div>
+			<input name="overhead_Item" id="overhead_Item" type="text" size="10" placeholder="項目" Autofocus="on" required />	 
+			<b><font color="#EE7700">NT$ </font></b><input name="overheadDollar" id="overheadDollar" type="text" size="10" onchange="checkIsNum(this);" placeholder="開銷總額" required />
+			<b><font color="#EE7700">PNT$ </font></b><input name="PersonalDollar" id="PersonalDollar" type="text" size="10" placeholder="個人開銷金額" onchange="checkIsNum(this);"/>
+			 <br>
+		 </div>
+		 
 		<div>
 		 
 		 <select name="overhead_type" id="overhead_type">
@@ -182,12 +185,22 @@ var show_overhead_time = false;
 			$overhead_typelist = array("食","衣","住","行","育","樂","他");		
 			for($i=0;$i<count($overhead_typelist);$i++)
 			{
-				echo '<option value='.$overhead_typelist[$i].'>'.$overhead_typelist[$i].'</option>';
-				
+				echo '<option value='.$overhead_typelist[$i].'>'.$overhead_typelist[$i].'</option>';				
 			}
 		 
 		 ?>
 		</select>
+		
+		 <select id="sel_overhead_Item" onchange = "sel_overhead_Item_chamge(this.value);">
+			<option value=""></option>
+			<option value="加油">加油</option>
+			<option value="早餐">早餐</option>
+			<option value="午餐">午餐</option>
+			<option value="晚餐">晚餐</option>
+			<option value="飲料">飲料</option>
+		</select>
+		 
+		 
 		 <select name="overhead_category" id = "overhead_category">
 			　<option value="支出" style="color:red">支出</option>
 			　<option value="收入" style="color:green"> 收入</option>					
@@ -220,10 +233,14 @@ var show_overhead_time = false;
 				<textarea name="memo" id="memo" style="height: 50px;width:400px;"></textarea>		
 			 </div>
 		</div>
-		
-	
+	</form>
+</fieldset>	
+
+
  
 	<?
+	   //  print 消費歷史
+	   
 		if(isset($_GET['result']))
 		{
 			// send insert or delete, then show result
@@ -293,12 +310,8 @@ var show_overhead_time = false;
 			echo 'Get Overhead Records Error : '. $queryOverheadRecordResult["MSG"];
 		}
 	?>
-	<!-- where the response will be displayed -->
-	<div id='response'></div>
-	</form>
-</fieldset>	
 
  
- 
+ </div>
 </body>
 </html>
