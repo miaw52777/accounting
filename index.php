@@ -15,6 +15,7 @@ $user_id = "miaw52777";
 <? require_once('./header/title.php');  ?>
 
 <link rel="stylesheet" type="text/css" href="./css/leftMenu.css">
+
 </head>
   
 <script type="text/javascript">
@@ -292,8 +293,34 @@ var show_overhead_time = false;
 			
 			while($temp=mysqli_fetch_assoc($queryOverheadRecordResult['DATA']))
 			{
+				$htmlTemplate = '<div class="container">  
+								  <p>:ITEM NT$ :NT
+								  <img src="./image/delete.png" id="img_overhead_delete" alt="刪除" title="刪除" onclick="delOverhead(\':GUID\');" class="right"> </img>
+								  </p>
+								  
+								  <span class="time-left">結帳日::STATISTIC_TIME</span>
+								  <span class="time-right">消費時間::RECTIME</span>								  
+								</div>';				
+				
+				$sourceStr = array(":ITEM", ":NT",':RECTIME',':STATISTIC_TIME',':GUID');
+				
 				if($overhead_type_radio == "personal")
 				{
+					$nt = $temp['pnt'];
+				}
+				else
+				{
+					$nt = $temp['nt'];
+				}
+				$replaceStr   = array($temp['overhead_item'],$nt,$temp['rectime'],$temp['statistic_time'],$temp['guid']);
+				
+				$htmlTemplate = str_replace($sourceStr,$replaceStr,$htmlTemplate);
+				
+				echo $htmlTemplate;
+				
+/*				
+				if($overhead_type_radio == "personal")
+				{					
 					echo 'Rec.'.$count.' 消費時間 : '.$temp['rectime'].', 結帳時間 : '.$temp['statistic_time'].$temp['overhead_category'].' '.$temp['overhead_item'].' NT$'.$temp['pnt'];
 				}
 				else
@@ -302,6 +329,7 @@ var show_overhead_time = false;
 				}
 				echo '<img src="./image/delete.png" id="img_overhead_delete" height="30" width="30" alt="刪除" title="刪除" onclick="delOverhead(\''.$temp['guid'].'\');"> </img>';
 				echo '<br>';
+				*/
 				$count++;
 			}
 		}
@@ -313,5 +341,9 @@ var show_overhead_time = false;
 
  
  </div>
-</body>
+
+ <link rel="stylesheet" type="text/css" href="./css/cheatStyle.css">
+ </body>
+
+
 </html>
