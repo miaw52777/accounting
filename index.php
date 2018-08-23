@@ -6,6 +6,16 @@ include_once("function/OverheadFunc.php");
 
 $user_id = "miaw52777";
 
+
+// 取得開銷項目 list
+$overhead_item_list = getOverhead_Item_List($user_id);				
+
+$overhead_item_Arr_Str = "";
+while($temp=mysqli_fetch_assoc($overhead_item_list['DATA']))
+{				
+	$overhead_item_Arr_Str .= $temp['type'].'@'.$temp['name'].'@'.$temp['is_necessary'].';';
+}
+
 ?>
 <html>
 <head>
@@ -69,10 +79,14 @@ function delOverhead(guid)
 		location.href = "deleteOverhead.php?guid="+guid; 	
 	}
 }
-
+function editOverhead(guid)
+{
+	alert("X");
+}
 function addOverhead()
 {
 	var overhead_data = new Object;
+	overhead_data["is_necessary"] =  document.getElementById("is_necessary").value;
 	overhead_data["is_statistic"] =  document.getElementById("is_statistic").value;
 	overhead_data["overhead_type"] =  document.getElementById("overhead_type").value;	
 	overhead_data["overhead_category"] =  document.getElementById("overhead_category").value;
@@ -140,13 +154,70 @@ function radioOverheadtypeSelect(overheadtype)
 		document.getElementById("overhead_type_radio_overall").checked = true;
 	}*/
 }
-function sel_overhead_Item_chamge(value)
+function sel_overhead_Item_change(value)
 {
 	document.getElementById("overhead_Item").value = value;	
+	is_necessary_check();
 }
+
+function overhead_type_change(type)
+{	
+   var user_id = "<? echo $user_id; ?>";
+   var overhead_item_Arr_Str = "<? echo $overhead_item_Arr_Str; ?>";   
+   
+   var listArr = overhead_item_Arr_Str.split(";");		
+   
+   var sOption = " <option value=\"\"></option> ";
+   
+   for (l in listArr) // spec		
+   {
+	   var tempArr = listArr[l].split("@");
+	   var arrtype = tempArr[0];	   
+	   var arrname = tempArr[1];	  
+	   
+	   if(arrtype == type)
+	   {
+		   sOption += " <option value=\""+arrname+"\">"+arrname+"</option> "; 		   
+	   }	   
+   }		   
+   document.getElementById("sel_overhead_Item").innerHTML = sOption;
+   is_necessary_check();
+}
+
+function is_necessary_check()
+{
+	var type = document.getElementById("overhead_type").value;
+	var name = document.getElementById("sel_overhead_Item").value;
+	var overhead_item_Arr_Str = "<? echo $overhead_item_Arr_Str; ?>";   
+	var listArr = overhead_item_Arr_Str.split(";");		
+	if(name == "") return;
+	
+	for (l in listArr) // spec		
+    {
+	   var tempArr = listArr[l].split("@");
+	   var arrtype = tempArr[0];	   
+	   var arrname = tempArr[1];	  
+	   var arrIsNecessary = tempArr[2];	
+	   
+	   if(arrtype == type && arrname == name && arrIsNecessary == "T" )
+	   {
+		   document.getElementById("is_necessary").checked = true;
+		   break;
+	   }	   
+	   else 
+	   {
+		   document.getElementById("is_necessary").checked = false;
+	   }
+    }	
+	
+	
+}
+
 // initial page load
 var show_statistic_time = false;
 var show_overhead_time = false;
+
+ 
 </script>
 
 <? 
@@ -181,24 +252,34 @@ var show_overhead_time = false;
 		 
 		<div>
 		 
-		 <select name="overhead_type" id="overhead_type">
+		 <select name="overhead_type" id="overhead_type" onchange="overhead_type_change(this.value);">
 		 <?
-			$overhead_typelist = array("食","衣","住","行","育","樂","他");		
-			for($i=0;$i<count($overhead_typelist);$i++)
-			{
-				echo '<option value='.$overhead_typelist[$i].'>'.$overhead_typelist[$i].'</option>';				
-			}
-		 
+			
+			$overhead_type_tmpArr = array();	
+			mysqli_data_seek($overhead_item_list['DATA'],0); // 移回第一筆資料	
+			while($temp=mysqli_fetch_assoc($overhead_item_list['DATA']))
+			{				
+				if(!in_array($temp['type'],$overhead_type_tmpArr))
+				{
+					echo '<option value="'.$temp['type'].'">'.$temp['type'].'</option>';
+					array_push($overhead_type_tmpArr,$temp['type']);
+				}
+			}		 
 		 ?>
-		</select>
+		</select>		
 		
-		 <select id="sel_overhead_Item" onchange = "sel_overhead_Item_chamge(this.value);">
-			<option value=""></option>
-			<option value="加油">加油</option>
-			<option value="早餐">早餐</option>
-			<option value="午餐">午餐</option>
-			<option value="晚餐">晚餐</option>
-			<option value="飲料">飲料</option>
+		 <select id="sel_overhead_Item" onchange = "sel_overhead_Item_change(this.value);">
+			<option value=""></option>	
+			<?
+				mysqli_data_seek($overhead_item_list['DATA'],0); // 移回第一筆資料	
+				while($temp=mysqli_fetch_assoc($overhead_item_list['DATA']))
+				{					
+					if($overhead_type_tmpArr[0] == $temp['type'])
+					{
+						echo '<option value="'.$temp['name'].'">'.$temp['name'].'</option>';
+					}
+				}
+			?>	
 		</select>
 		 
 		 
@@ -219,13 +300,14 @@ var show_overhead_time = false;
 			{							
 				while($temp=mysqli_fetch_assoc($returnMsg['DATA']))
 				{
-					echo '<option value="'.$temp['type_id'].'">'.$temp['type_name'].'</option>';
+					echo '<option value="'.$temp['type_name'].'">'.$temp['type_name'].'</option>';
 				}
 			}
 		
 		 ?>
 		 </select>	
 		 <input type="checkbox" name="is_statistic" id="is_statistic">此筆不納入統計
+		 <input type="checkbox" name="is_necessary" id="is_necessary">是否為必要花費
 		 
 		 
 		 <br>
@@ -240,8 +322,7 @@ var show_overhead_time = false;
 
  
 	<?
-	   //  print 消費歷史
-	   
+	   //  print 消費歷史	   
 		if(isset($_GET['result']))
 		{
 			// send insert or delete, then show result
@@ -266,9 +347,6 @@ var show_overhead_time = false;
 			echo '<br>';
 		}
 		
-		echo 'Show 50 records.(default)<br>';
-		
-		
 		 
 		$overhead_type_radio = $_GET['overhead_type_radio'];	
 		if($overhead_type_radio == "") $overhead_type_radio='personal';
@@ -283,9 +361,11 @@ var show_overhead_time = false;
 		{
 			echo '<input type="radio" name="overhead_type_radio" onclick="radioOverheadtypeSelect(\'personal\');">個人開銷 
 			  <input type="radio" name="overhead_type_radio" onclick="radioOverheadtypeSelect(\'overall\');" checked>全部開銷 <br>';			
-		}
-		//echo base64_decode($actionArray['data_record']);
+		}		
+		
 		$queryOverheadRecordResult = getOverheadRecord($user_id);
+		echo 'Total count: '.mysqli_num_rows($queryOverheadRecordResult['DATA']).'<br>';		
+		
 		if($queryOverheadRecordResult["RESULT"])
 		{
 		    // 顯示開銷
@@ -294,15 +374,16 @@ var show_overhead_time = false;
 			while($temp=mysqli_fetch_assoc($queryOverheadRecordResult['DATA']))
 			{
 				$htmlTemplate = '<div class="container">  
-								  <p>:ITEM NT$ :NT
+								  <p>:ITEM NT$ :NT (:METHOD)
 								  <img src="./image/delete.png" id="img_overhead_delete" alt="刪除" title="刪除" onclick="delOverhead(\':GUID\');" class="right"> </img>
+								  <img src="./image/edit.png" id="img_overhead_edit" alt="編輯" title="編輯" onclick="editOverhead(\':GUID\');" class="right"> </img>
 								  </p>
 								  
 								  <span class="time-left">結帳日::STATISTIC_TIME</span>
 								  <span class="time-right">消費時間::RECTIME</span>								  
 								</div>';				
 				
-				$sourceStr = array(":ITEM", ":NT",':RECTIME',':STATISTIC_TIME',':GUID');
+				$sourceStr = array(":ITEM", ":NT",':RECTIME',':STATISTIC_TIME',':GUID',":METHOD");
 				
 				if($overhead_type_radio == "personal")
 				{
@@ -312,24 +393,12 @@ var show_overhead_time = false;
 				{
 					$nt = $temp['nt'];
 				}
-				$replaceStr   = array($temp['overhead_item'],$nt,$temp['rectime'],$temp['statistic_time'],$temp['guid']);
+				$replaceStr   = array($temp['overhead_item'],$nt,$temp['rectime'],$temp['statistic_time'],$temp['guid'],$temp['method']);
 				
 				$htmlTemplate = str_replace($sourceStr,$replaceStr,$htmlTemplate);
 				
 				echo $htmlTemplate;
-				
-/*				
-				if($overhead_type_radio == "personal")
-				{					
-					echo 'Rec.'.$count.' 消費時間 : '.$temp['rectime'].', 結帳時間 : '.$temp['statistic_time'].$temp['overhead_category'].' '.$temp['overhead_item'].' NT$'.$temp['pnt'];
-				}
-				else
-				{
-					echo 'Rec.'.$count.' 消費時間 : '.$temp['rectime'].', 結帳時間 : '.$temp['statistic_time'].$temp['overhead_category'].' '.$temp['overhead_item'].' NT$'.$temp['nt'];
-				}
-				echo '<img src="./image/delete.png" id="img_overhead_delete" height="30" width="30" alt="刪除" title="刪除" onclick="delOverhead(\''.$temp['guid'].'\');"> </img>';
-				echo '<br>';
-				*/
+			
 				$count++;
 			}
 		}
@@ -341,7 +410,8 @@ var show_overhead_time = false;
 
  
  </div>
-
+ 
+   
  <link rel="stylesheet" type="text/css" href="./css/cheatStyle.css">
  </body>
 

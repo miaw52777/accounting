@@ -18,6 +18,16 @@ else
 	$is_statistic = 'T';
 }
 
+if($dataArray['is_necessary'] == "on")
+{
+	$is_necessary = 'T';
+}		
+else
+{
+	$is_necessary = 'F';
+}
+
+
 $type = $dataArray['overhead_type'];
 $category = $dataArray['overhead_category'];
 $item = $dataArray['overhead_Item'];
@@ -35,7 +45,7 @@ $user_id = $dataArray['user_id'];
 
 $guid = guid();
 
-$insert_result = newOverhead($guid, $user_id,$is_statistic,$type,$category,$item,$method,$total_nt,$personal_nt,$memo, $statistict_time,$rectime);
+$insert_result = newOverhead($guid, $user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo, $statistict_time,$rectime);
 
 if($insert_result == "")
 {
