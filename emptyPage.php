@@ -1,4 +1,5 @@
-﻿<?php 
+<!DOCTYPE HTML>
+<?php 
 include_once("function/conn.php");
 include_once("function/CommFunc.php");
 include_once("function/Mobile_Check.php");
@@ -7,25 +8,57 @@ include_once("function/OverheadFunc.php");
 $user_id = "miaw52777";
 
 ?>
+
 <html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
-<? require_once('./header/title.php');  ?>
+	<head>
+		<? require_once('./header/title.php');  ?>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta name="description" content="" />
+		<meta name="keywords" content="" />
+		<link rel="stylesheet" href="assets/css/main.css" />			
+	</head>
+	
+	<body class="is-preload">
 
-<link rel="stylesheet" type="text/css" href="./css/leftMenu.css">
-</head>
+							
+		<? 
+			require_once('./header/topHeader.php'); 
+			echo printmenuList();
+		?> 
+				
 
+		<!-- History -->
+			<section class="wrapper">
+				<div class="inner">
+					<header class="special">
+						<h2>Show History</h2>	
+						 					
+						
+					</header>
+					<div class="testimonials">
+						 
+						
+					</div>
+				</div>
+			</section>
 
-<? 
-	require_once('./header/topHeader.php'); 
-	echo menuList("帳戶管理");
-?> 
+			<? 
+				require_once('./header/footer.php'); 						
+			?>
 
-<div>  
-  
- </div>
-<link rel="stylesheet" type="text/css" href="./css/cheatStyle.css">
-</body>
+				 
+		<!-- Scripts -->		
+			
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
 </html>
+
+<?
+
+?>

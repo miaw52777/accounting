@@ -21,24 +21,71 @@ function getOverhead_Item_List($user_id)
 	return $returnMsg;	
 }
 
-//取得 default 開銷項目
-function getOverhead_Item_List_test($user_id,$type)
-{
-	include_once("conn.php");	
-	include_once("CommFunc.php");	
-	$querySQL = 'SELECT name FROM Overhead_Item_List where 1=1 and user_id="'.$user_id.'" and type="'.$type.'" order by seq';	
+// 取得 OverheadRecord 查詢條件
+function getOverheadRecord_Select_Rule($col, $value)
+{	
+	$rule = "";
+	if($printLog == 'T')
+	{
+		echo 'col='.strtoupper($col).'<br>';
+		echo 'value='.$value.'<br>';
+	}
 	
-	$returnMsg = QuerySQL($querySQL);		
-	return $returnMsg;	
+	
+	if($value=='%') 
+	{
+		$rule = '';
+	}
+	else
+	{
+		if(strtoupper($col)  == "GUID")
+		{
+			$rule = sprintf(' and guid = %s ',GetSqlValueString($value,'text'));			
+		}
+		else if(strtoupper($col)  == "IS_STATISTIC")
+		{
+			$rule = sprintf(' and IS_STATISTIC = %s ',GetSqlValueString($value,'text'));			
+		}		
+		elseif(strtoupper($col) == 'IS_NECESSARY')
+		{
+			$rule = sprintf(' and IS_NECESSARY = %s ',GetSqlValueString($value,'text'));			
+		}		
+		elseif(strtoupper($col) == 'OVERHEAD_TYPE')
+		{
+			$rule = sprintf('and OVERHEAD_TYPE = %s',GetSqlValueString($value,'text'));
+		}
+		elseif(strtoupper($col)  == "OVERHEAD_CATEGORY")
+		{
+			$rule = sprintf(' and OVERHEAD_CATEGORY = %s ',GetSqlValueString($value,'text'));			
+		}	
+		elseif(strtoupper($col)  == "METHOD")
+		{
+			$rule = sprintf(' and METHOD = %s ',GetSqlValueString($value,'text'));			
+		}
+		elseif(strtoupper($col)  == "MEMO")
+		{
+			$rule = sprintf(' and MEMO like %s ',GetSqlValueString($value,'text'));			
+		}	
+	}
+	
+	if($printLog == 'T')
+	{
+		echo 'rule='.$rule.'<br>';
+	}
+	return $rule;
+
 }
 
+
 //查詢開銷紀錄
-function getOverheadRecord($user_id, $limit=50)
+function getOverheadRecord($user_id,$rule = '', $limit=50)
 {
 	include_once("conn.php");	
 	include_once("CommFunc.php");	
-	$querySQL = 'SELECT t.* '.
-	$querySQL .= 'FROM overhead_record t where 1=1 and user_id="'.$user_id.'" ';	
+	$querySQL  = 'SELECT t.*, DATE(rectime) overhead_date, time(rectime) overhead_time '.
+	$querySQL .= 'FROM overhead_record t ';
+	$querySQL .= 'where 1=1 and user_id="'.$user_id.'" ';	
+	$querySQL .= ' '.$rule.' ';
 	$querySQL .= ' order by rectime desc ';
 	if($limit > 0) 
 	{ // no limit, show all`
@@ -49,7 +96,7 @@ function getOverheadRecord($user_id, $limit=50)
 }
 
 
-//新增開銷
+//新增開銷項目
 function newOverhead($guid,$user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo,$statistic_time,$rectime)
 {
 	$sql = "INSERT INTO overhead_record (guid, user_id, is_statistic,is_necessary, overhead_type, overhead_category, overhead_item, method, nt, pnt, Memo, statistic_time, rectime) 
@@ -67,6 +114,37 @@ function newOverhead($guid,$user_id,$is_statistic,$is_necessary,$type,$category,
 	return $returnMsg;	
 }
 
+//修改開銷內容
+function updateOverhead($guid,$user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo,$statistic_time,$rectime)
+{
+	$sql = "update overhead_record 
+			set user_id=':USER_ID', 
+				is_statistic=':IS_STATISTIC', 
+				is_necessary=':IS_NECESSARY',
+				overhead_type=':TYPE', 
+				overhead_category=':CATEGORY', 
+				overhead_item=':ITEM', 
+				method=':METHOD', 
+				nt=':TOTAL_NT', 
+				pnt=':PERSONAL_NT', 
+				memo=':MEMO',
+				statistic_time=':STATISTIC_TIME',
+				rectime=':RECTIME'
+			where 1=1
+				and guid=':GUID'
+			";
+		$sourceStr = array(":GUID",":USER_ID", ":IS_STATISTIC",":IS_NECESSARY",':TYPE', ':CATEGORY', ':ITEM', ':METHOD', ':TOTAL_NT', ':PERSONAL_NT', ':MEMO', ':STATISTIC_TIME', ':RECTIME');
+		$replaceStr = array($guid,$user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo,$statistic_time, $rectime);	
+	
+	$sql = str_replace($sourceStr,$replaceStr,$sql);	
+
+	//echo $sql;
+	include_once("conn.php");	
+	include_once("CommFunc.php");	
+	$returnMsg = ExecuteSQL($sql);		
+	
+	return $returnMsg;	
+}
 // 刪除開銷
 function deleteOverheadRecord($guid)
 {

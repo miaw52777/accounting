@@ -9,23 +9,8 @@ $dataArray = json_decode($_GET['data'], true);
 
 
 
-if($dataArray['is_statistic'] == "on")
-{
-	$is_statistic = 'F';
-}		
-else
-{
-	$is_statistic = 'T';
-}
-
-if($dataArray['is_necessary'] == "on")
-{
-	$is_necessary = 'T';
-}		
-else
-{
-	$is_necessary = 'F';
-}
+$is_statistic = $dataArray['is_statistic'];
+$is_necessary = $dataArray['is_necessary'];
 
 
 $type = $dataArray['overhead_type'];
