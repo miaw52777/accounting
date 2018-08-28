@@ -4,97 +4,101 @@ include_once("function/conn.php");
 include_once("function/CommFunc.php");
 include_once("function/OverheadFunc.php"); 
 include_once("function/StatisticFunc.php"); 
-include_once("function/Mobile_Check.php"); 
 
 $user_id = "miaw52777";
-$mode = 'nt';
-$month = $_GET['month'];
-
-if($month == '') 
-{
-	$month = new DateTime(str_replace('-','/',getToday()));
-	$date = $month; 
-}
-else $date = new DateTime($month.'/01'); 
-
-$curMonth = $date->format('Y/m');
-
-$start_time = $date->format('Y-m-01');
-$end_time = $date->format('Y-m-t');
-
-/*
-echo date("Y-m-d",strtotime("-1 month"));
-echo '<br>';
-echo $date->format('Y-m').'<br>';
-echo $date->format('Y-m-01').'<br>'; // first of month
-echo $date->format('Y-m-t').'<br>'; // end of month
-*/
 
 $slideno = $_GET['slideno'];
 if($slideno == '') $slideno = 1;
-
-$result = printStatisticData($mode,$user_id,$start_time,$end_time);
-$dataPoints = $result['datapoint'];
-$total_income_nt = $result['income'];
-$total_outlay_nt = $result['outlay'];
 ?>
 
 <html>
 	<head>
 		<? require_once('./header/title.php');  ?>
-		<meta charset="utf-8" /> 
+		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<meta name="description" content="" />
 		<meta name="keywords" content="" />
 		<link rel="stylesheet" href="assets/css/main.css" />
-		<link rel="stylesheet" href="css/slideshow.css" />				
-		<link href='css/fullcalendar.min.css' rel='stylesheet' />	
-		<script src="header/statistic_event.js" type="text/javascript"></script>		
-		
-		<!-- line chart -->
-		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>	 
-		 <script type="text/javascript">
-		  google.charts.load('current', {'packages':['corechart']});
-		  google.charts.setOnLoadCallback(drawChart);
-
-		  function drawChart() {
-			var data = new google.visualization.DataTable();
-			data.addColumn({ type: 'string', id: 'date' });
-			data.addColumn({ type: 'number', id: 'income', label: '收入' });
-			data.addColumn({ type: 'number', id: 'outlay', label: '支出' });
-			data.addColumn({ type: 'number', id: 'render', label: '結算' });
-			
-			data.addRows([
-			  <? echo $dataPoints; ?>
-			  ]);
-
-
-			var options = {
-			  title: '',
-			  curveType: 'none',
-			  titleTextStyle: {		  
-				fontName: 'Arial',
-				fontSize: 30			
-			  },
-			  gend: { position: 'none' },
-			  pointSize: 15,
-			  series: {
-				0: { pointShape: 'square', color:'green' },
-				1: { pointShape: 'square', color:'blue' },
-				2: { pointShape: 'square', color:'brown' }
-			  }
-			};
-
-			var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
-
-			chart.draw(data, options);
-		  }
-		</script>
-		<!-- line chart -->
-		
+		<link rel="stylesheet" href="css/slideshow.css" />		
+		<link rel="stylesheet" href="css/calendar.css" />	
+		<!-- Calendar start -->	
+		<link href='css/fullcalendar.min.css' rel='stylesheet' />
+		<link href='css/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+		<script src='header/moment.min.js'></script>		
+		<script src='header/fullcalendar.min.js'></script>
+		<!-- Calendar end -->	
+		<script>
+  $(document).ready(function() {
+ alert("X");
+    $('#calendar').fullCalendar({
+      defaultDate: '2018-03-12',
+      editable: true,
+      eventLimit: true, // allow "more" link when too many events
+      events: [
+        {
+          title: 'All Day Event',
+          start: '2018-03-01'
+        },
+        {
+          title: 'Long Event',
+          start: '2018-03-07',
+          end: '2018-03-10'
+        },
+        {
+          id: 999,
+          title: 'Repeating Event',
+          start: '2018-03-09T16:00:00'
+        },
+        {
+          id: 999,
+          title: 'Repeating Event',
+          start: '2018-03-16T16:00:00'
+        },
+        {
+          title: 'Conference',
+          start: '2018-03-11',
+          end: '2018-03-13'
+        },
+        {
+          title: 'Meeting',
+          start: '2018-03-12T10:30:00',
+          end: '2018-03-12T12:30:00'
+        },
+        {
+          title: 'Lunch',
+          start: '2018-03-12T12:00:00'
+        },
+        {
+          title: 'Meeting',
+          start: '2018-03-12T14:30:00'
+        },
+        {
+          title: 'Happy Hour',
+          start: '2018-03-12T17:30:00'
+        },
+        {
+          title: 'Dinner',
+          start: '2018-03-12T20:00:00'
+        },
+        {
+          title: 'Birthday Party',
+          start: '2018-03-13T07:00:00'
+        },
+        {
+          title: 'Click for Google',
+          url: 'http://google.com/',
+          start: '2018-03-28'
+        }
+      ]
+    });
+ alert("X");
+ });
+</script>
 	</head>
 	
-	<body class="is-preload">							
+	<body class="is-preload">
+<div id='calendar'></div>
+							
 		<? 
 			require_once('./header/topHeader.php'); 
 			echo printmenuList();
@@ -119,52 +123,15 @@ $total_outlay_nt = $result['outlay'];
 				<div class="inner">
 					<div class="content">
 					
-					<div class="row" id="monthSwitch" style="text-align: center;">
-						<div class="col-4">
-						<input type="button" class="button primary small" value="<" onclick="changeMonth('-');" id="SubMonth"></input>
-						</div>
+					
+					
+					
 						
-						<div class="col-4">
-						<p id="selectMonth"><? echo $curMonth; ?></p>
-						</div>
-						
-						<div class="col-4">
-						<input type="button" class="button primary small" value=">" onclick="changeMonth('+');" id="AddMonth"></input>
-						</div>
-					</div>
-					
-					
-					<div class=\"table-wrapper\">						
-						<table>
-							<thead>
-								<tr>
-									<th>總收入</th>
-									<th>總支出</th>
-									<th>結算</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td><font color="green">NT$ <? echo $total_income_nt; ?></font></td>
-									<td><font color="red">NT$ <? echo $total_outlay_nt; ?></font></td>
-									<td><font color="blue">NT$ <? echo ($total_income_nt-$total_outlay_nt); ?></font></td>
-								</tr>				
-							</tbody>									
-						</table>
-					</div>
-					
-					
-					<div id="curve_chart" style="width: 100%; height: 500px"></div>
-					<?
-						if(!is_mobile())
-						{
-							$height_str = 'height:800px;';
-						}
-						echo 
-					 '<iframe src="calendar_view.php?user_id='.$user_id.'&start_time='.$start_time.'&end_time='.$end_time.'" style="width:100%; '.$height_str.'overflow:hidden; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;">
-					</iframe>';
+						<? 
+							$start_time = '2018/08/15';
+							$end_time = '2018/08/25'; 
 							
-							
+							printStatisticData($user_id,$start_time,$end_time); 
 						?>			
 					</div>
 				</div>
@@ -175,7 +142,7 @@ $total_outlay_nt = $result['outlay'];
 
 				 
 		<!-- Scripts -->							
-			<script src="header/slideshow.js" type="text/javascript"></script>
+			<script src="header/statistic_event.js" type="text/javascript"></script>			
 			<script src="assets/js/jquery.min.js"></script>
 			<script src="assets/js/browser.min.js"></script>
 			<script src="assets/js/breakpoints.min.js"></script>
@@ -189,21 +156,16 @@ $total_outlay_nt = $result['outlay'];
 function printStatisticMenu()
 {
 	$menulist = array();
-	$i=0;
-	/*$menulist[$i]['title'] = "各週統計";
-	$menulist[$i]['image'] = "image/week.png";
-	$i++;*/
-	$menulist[$i]['title'] = "各月統計";
-	$menulist[$i]['image'] = "image/month.png";
-	$i++;
-	$menulist[$i]['title'] = "各年統計";
-	$menulist[$i]['image'] = "image/year.png";
-	$i++;
-	$menulist[$i]['title'] = "項目排名";
-	$menulist[$i]['image'] = "image/ranking.png";
-	$i++;
-	$menulist[$i]['title'] = "類型比例";
-	$menulist[$i]['image'] = "image/piechart.png";
+	$menulist[0]['title'] = "各週統計";
+	$menulist[0]['image'] = "image/week.png";
+	$menulist[1]['title'] = "各月統計";
+	$menulist[1]['image'] = "image/month.png";
+	$menulist[2]['title'] = "各年統計";
+	$menulist[2]['image'] = "image/year.png";
+	$menulist[3]['title'] = "項目排名";
+	$menulist[3]['image'] = "image/ranking.png";
+	$menulist[4]['title'] = "類型比例";
+	$menulist[4]['image'] = "image/piechart.png";
 	
 	$imageHtml = '';
 	$dotHtml = '';
@@ -243,43 +205,8 @@ function printStatisticMenu()
 	echo $htmlStr;
 }
 
-function printStatisticData($mode,$user_id,$start_time,$end_time)
+function printStatisticData($user_id,$start_time,$end_time)
 {	
-	$result = array();
-	$queryResult = getStatisticByWeek($mode,$user_id,$start_time,$end_time);	
-	
-	$dataPoints = "";
-	$count=0;
-	$total_income = 0;
-	$total_outlay = 0;
-	while($temp=mysqli_fetch_assoc($queryResult['DATA']))
-	{		
-		$date = $temp['statistic_time'];
-		$nt_income = $temp['nt_income'];
-		$nt_outlay = $temp['nt_outlay'];
-		
-		$total_income += $nt_income;
-		$total_outlay += $nt_outlay;
-		
-		if($count==0)
-		{
-			$dataPoints .= '';	
-		}
-		else
-		{
-			$dataPoints .= ',';	
-		}
-		$dataPoints .= '[ ("'.$date.'"), '.$nt_income.', '.$nt_outlay.', '.($nt_income-$nt_outlay).']';
-		$count++;
-	}
-	$result['datapoint'] = $dataPoints;
-	$result['income'] = $total_income;
-	$result['outlay'] = $total_outlay;
-	
-	return $result;
-}
-function printDailyOverheadData($user_id,$start_time,$end_time)
-{
 	$queryResult = getOverheadRawdata($user_id,$start_time,$end_time);
 	
 	if($queryResult['RESULT'])
