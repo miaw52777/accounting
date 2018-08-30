@@ -1,10 +1,10 @@
-﻿	<section id="main_month" class="wrapper" name="main_month">
+﻿	<section id="main" class="wrapper" name="main">
 				<div class="inner">
 					<div class="content">
 					
 					<div class="row" id="monthSwitch" style="text-align: center;">
 						<div class="col-4">
-						<input type="button" class="button primary small" value="<" onclick="changeMonth('-');" id="SubMonth"></input>
+						<input type="button" class="button primary small" value="<" onclick="changeMonth('-','<? echo $slideno;?>');" id="SubMonth"></input>
 						</div>
 						
 						<div class="col-4">
@@ -12,7 +12,7 @@
 						</div>
 						
 						<div class="col-4">
-						<input type="button" class="button primary small" value=">" onclick="changeMonth('+');" id="AddMonth"></input>
+						<input type="button" class="button primary small" value=">" onclick="changeMonth('+','<? echo $slideno;?>');" id="AddMonth"></input>
 						</div>
 					</div>
 					
@@ -37,7 +37,7 @@
 					</div>
 					
 					
-					<div id="line_chart_month" style="width: 100%; height: 500px"></div>
+					<div id="line_chart" style="width: 100%; height: 500px"></div>
 					<?
 						if(!is_mobile())
 						{

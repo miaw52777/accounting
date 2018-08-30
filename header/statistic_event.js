@@ -12,8 +12,9 @@
 	return month;
 }
 
-function changeMonth(action)
+function changeMonth(action,slideIndex)
 {	
+
 	var curMonth = document.getElementById("selectMonth").innerHTML;
 	var date = new Date(curMonth+"/15");
 	var month = date.getMonth();
@@ -30,18 +31,15 @@ function changeMonth(action)
 	
 	document.getElementById("selectMonth").innerHTML =  date.getFullYear() +
 			"/" + month;
-			
-				
-	var curYear = document.getElementById("selectYear").innerHTML;
 	
-	location.href = "statistic.php?slideno="+ slideIndex +"&year="+curYear+"&month="+date.getFullYear() +
+	location.href = "?slideno="+ slideIndex +"&month="+date.getFullYear() +
 			"/" + month + "#main"; 		
 	
 	
 }
 
 
-function changeYear(action)
+function changeYear(action,slideIndex)
 {	
 
 	var curYear = document.getElementById("selectYear").innerHTML;	
@@ -57,17 +55,6 @@ function changeYear(action)
 
 	document.getElementById("selectYear").innerHTML = curYear;
 	
-	
-	// get month information
-	var curMonth = document.getElementById("selectMonth").innerHTML;
-	var date = new Date(curMonth+"/15");
-	var month = date.getMonth();
-	month = convertMonthFormate(date.getMonth());
-	
-	location.href = "statistic.php?slideno="+ slideIndex +"&year="+curYear+"&month="+date.getFullYear() +
-			"/" + month + "#main"; 		
-	
-	
+	location.href = "?slideno="+ slideIndex +"&year="+curYear + "#main";
 }
 
-f

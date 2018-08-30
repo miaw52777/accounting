@@ -1,10 +1,10 @@
-﻿	<section id="main_year" name="main_year"  class="wrapper">
+﻿	<section id="main" name="main"  class="wrapper">
 				<div class="inner">
 					<div class="content">
 					
 					<div class="row" id="monthSwitch" style="text-align: center;">
 						<div class="col-4">
-						<input type="button" class="button primary small" value="<" onclick="changeYear('-');" id="SubYear"></input>
+						<input type="button" class="button primary small" value="<" onclick="changeYear('-','<? echo $slideno;?>');" id="SubYear"></input>
 						</div>
 						
 						<div class="col-4">
@@ -12,7 +12,7 @@
 						</div>
 						
 						<div class="col-4">
-						<input type="button" class="button primary small" value=">" onclick="changeYear('+');" id="AddYear"></input>
+						<input type="button" class="button primary small" value=">" onclick="changeYear('+','<? echo $slideno;?>');" id="AddYear"></input>
 						</div>
 					</div>
 					
@@ -28,16 +28,16 @@
 							</thead>
 							<tbody>
 								<tr>
-									<td><font color="green">NT$ <? echo $total_income_nt_Year; ?></font></td>
-									<td><font color="red">NT$ <? echo $total_outlay_nt_Year; ?></font></td>
-									<td><font color="blue">NT$ <? echo ($total_income_nt_Year-$total_outlay_nt_Year); ?></font></td>
+									<td><font color="green">NT$ <? echo $total_income_nt; ?></font></td>
+									<td><font color="red">NT$ <? echo $total_outlay_nt; ?></font></td>
+									<td><font color="blue">NT$ <? echo ($total_income_nt-$total_outlay_nt); ?></font></td>
 								</tr>				
 							</tbody>									
 						</table>
 					</div>
 					
 					
-					<div id="line_chart_year" style="width: 100%; height: 500px"></div>
+					<div id="line_chart" style="width: 100%; height: 500px"></div>
 					<?
 						$show_time = getToday();					
 						if(!is_mobile())
@@ -45,7 +45,7 @@
 							$height_str = 'height:800px;';
 						}
 						echo 
-					 '<iframe src="calendar_view.php?user_id='.$user_id.'&show_time='.$show_time.'&start_time='.$start_time_Year.'&end_time='.$end_time_Year.'" style="width:100%; '.$height_str.'overflow:hidden; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;">
+					 '<iframe src="calendar_view.php?user_id='.$user_id.'&show_time='.$show_time.'&start_time='.$start_time.'&end_time='.$end_time.'" style="width:100%; '.$height_str.'overflow:hidden; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;">
 					</iframe>';
 							
 							

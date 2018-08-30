@@ -1,0 +1,28 @@
+﻿div.scrollmenu {
+     
+    overflow: auto;
+    white-space: nowrap;
+	width:100%;
+	text-align:center;
+}
+
+div.scrollmenu a {
+    display: inline-block;
+    color: black;
+    text-align: center;
+    padding: 14px;
+    text-decoration: none;
+}
+
+div.scrollmenu a.active{
+    display: inline-block;
+    color: black;
+    text-align: center;
+    padding: 14px;
+    text-decoration: underline;
+	text-decoration-style: dotted;	
+}
+
+div.scrollmenu a:hover {   
+	opacity: 0.5
+}
