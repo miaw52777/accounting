@@ -1,7 +1,7 @@
 ﻿	<section id="main" name="main"  class="wrapper">
 				<div class="inner">
 					<div class="content">
-					
+				
 					<div class="row" id="monthSwitch" style="text-align: center;">
 						<div class="col-4">
 						<input type="button" class="button primary small" value="<" onclick="changeYear('-','<? echo $slideno;?>');" id="SubYear"></input>
@@ -38,6 +38,21 @@
 					
 					
 					<div id="line_chart" style="width: 100%; height: 500px"></div>
+					<div class="row" style="text-align:center">
+						<div class="col-4">
+							<input type="checkbox" id="income" name="checkbox" class="checkbox" checked>
+							<label for="income">收入</label>
+						</div>
+						<div class="col-4">
+							<input type="checkbox" id="outlay" name="checkbox" class="checkbox" checked>
+							<label for="outlay">支出</label>
+						</div>
+						<div class="col-4">
+							<input type="checkbox" id="render" name="checkbox" class="checkbox" checked>
+							<label for="render">結算</label>
+						</div> 
+					</div>					
+										
 					<?
 						$show_time = getToday();					
 						if(!is_mobile())

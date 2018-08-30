@@ -71,39 +71,95 @@ $total_outlay_nt = $result['outlay'];
 		  google.charts.load('current', {'packages':['corechart']});
 		  google.charts.setOnLoadCallback(drawChart);
 
-		  function drawChart() {
-			var dataMonth = new google.visualization.DataTable();
-			dataMonth.addColumn({ type: 'string', id: 'date' });
-			dataMonth.addColumn({ type: 'number', id: 'income', label: '收入' });
-			dataMonth.addColumn({ type: 'number', id: 'outlay', label: '支出' });
-			dataMonth.addColumn({ type: 'number', id: 'render', label: '結算' });
-			
-			dataMonth.addRows([
-			  <? echo $dataPoints; ?>
-			  ]);
-			  			
+			function drawChart() 
+			{
+				var data = new google.visualization.DataTable();
+				data.addColumn({ type: 'string', id: 'date' });
+				data.addColumn({ type: 'number', id: 'income', label: '收入' });
+				data.addColumn({ type: 'number', id: 'outlay', label: '支出' });
+				data.addColumn({ type: 'number', id: 'render', label: '結算' });
+				
+				data.addRows([
+				  <? echo $dataPoints; ?>
+				  ]);
+							
 
-			var options = {
-			  title: '',
-			  curveType: 'none',
-			  titleTextStyle: {		  
-				fontName: 'Arial',
-				fontSize: 30			
-			  },
-			  gend: { position: 'none' },
-			  pointSize: 15,
-			  series: {
-				0: { pointShape: 'square', color:'green' },
-				1: { pointShape: 'square', color:'blue' },
-				2: { pointShape: 'square', color:'brown' }
-			  }
-			};
+				 var options = {
+				  title: '',
+				  curveType: 'none',
+				  titleTextStyle: {		  
+					fontName: 'Arial',
+					fontSize: 30			
+				  },
+				  gend: { position: 'none' },
+				  pointSize: 15,
+				  series: {
+					0: { pointShape: 'square', color:'green' },
+					1: { pointShape: 'square', color:'blue' },
+					2: { pointShape: 'square', color:'brown' }
+				  }
+				};
+				data.addColumn({type: 'string', role: 'annotation'});
+				var view = new google.visualization.DataView(data);
+				view.setColumns([0, 1,
+					{ calc: "stringify",
+						sourceColumn: 1,
+						type: "string",
+						role: "none" },2,
+					{ calc: "stringify",
+						sourceColumn: 2,
+						type: "string",
+						role: "none" },3,
+					{ calc: "stringify",
+						sourceColumn: 3,
+						type: "string",
+						role: "none" }]);
 
-			var chartMonth = new google.visualization.LineChart(document.getElementById('line_chart'));
-			chartMonth.draw(dataMonth, options);
-			
-			
-		  }
+				var chart = new google.visualization.LineChart(document.getElementById('line_chart'));
+
+				chart.draw(view, options);
+				$(document).ready(function () 
+				{                
+					$(".checkbox").change(function() 
+					{
+
+						view = new google.visualization.DataView(data);
+						var tes =[0];
+						
+						if($("#income").is(':checked')) {
+
+							tes.push(1,
+								{ calc: "stringify",
+									sourceColumn: 1,
+									type: "string",
+									role: "none" });                    
+									}
+						if($("#outlay").is(':checked'))
+						{
+							tes.push(2,
+								{ calc: "stringify",
+									sourceColumn: 2,
+									type: "string",
+									role: "none" });
+						}
+						if($("#render").is(':checked'))
+						{
+							tes.push(3,
+								{ calc: "stringify",
+									sourceColumn: 3,
+									type: "string",
+									role: "none"});
+						}
+						view.setColumns(tes);
+
+
+						chart.draw(view, options);
+
+					});
+				});
+
+			}
+
 		</script>
 		<!-- line chart -->
 	 	
