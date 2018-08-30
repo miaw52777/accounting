@@ -5,7 +5,7 @@ include_once("function/CommFunc.php");
 include_once("function/Mobile_Check.php");
 include_once("function/OverheadFunc.php"); 
 
-$user_id = "miaw52777";
+$user_id = $_GET['user_id'];
 
 ?>
 

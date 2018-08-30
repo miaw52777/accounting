@@ -7,11 +7,17 @@ include_once("function/StatisticFunc.php");
 include_once("function/Mobile_Check.php"); 
 
 
-
-$user_id = "miaw52777";
+/* 參數區 start */
+$user_id = $_GET['user_id'];
 $mode = 'nt';
 $month = $_GET['month'];
+$slideno = $_GET['slideno'];
+$curYear = $_GET['year'];
+/* 參數區 end */
 
+/* 參數區 default start */
+
+if($slideno == '') $slideno = '0';
 if($month == '') 
 {
 	$month = new DateTime(str_replace('-','/',getToday()));
@@ -20,12 +26,12 @@ if($month == '')
 else $date = new DateTime($month.'/01'); 
 
 $curMonth = $date->format('Y/m');
-
-$slideno = $_GET['slideno'];
-if($slideno == '') $slideno = '0';
-
-$curYear = $_GET['year'];
 if($curYear == '') $curYear = $date->format('Y');
+
+/* 參數區 default start */
+
+
+
 
 $menulist = defineMenuList();
 
@@ -44,8 +50,6 @@ else if($menulist[$slideno]['title'] == "各年統計")
 	$time_scale = 'year';
 	
 }
-
-
 $result = printStatisticData($time_scale,$mode,$user_id,$start_time,$end_time);
 $dataPoints = $result['datapoint'];
 $total_income_nt = $result['income'];
