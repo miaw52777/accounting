@@ -19,8 +19,20 @@ else $date = new DateTime($month.'/01');
 
 $curMonth = $date->format('Y/m');
 
+
+$slideno = $_GET['slideno'];
+if($slideno == '') $slideno = '1';
+
+$curYear = $_GET['year'];
+if($curYear == '') $curYear = $date->format('Y');
+
+// initial month information
 $start_time = $date->format('Y-m-01');
 $end_time = $date->format('Y-m-t');
+
+// initial year information
+$start_time_Year = $curYear.'/01/01';
+$end_time_Year = $curYear.'/12/31';
 
 /*
 echo date("Y-m-d",strtotime("-1 month"));
@@ -30,13 +42,19 @@ echo $date->format('Y-m-01').'<br>'; // first of month
 echo $date->format('Y-m-t').'<br>'; // end of month
 */
 
-$slideno = $_GET['slideno'];
-if($slideno == '') $slideno = 1;
-
-$result = printStatisticData($mode,$user_id,$start_time,$end_time);
+// get month raw data
+$result = printStatisticMonthData($mode,$user_id,$start_time,$end_time);
 $dataPoints = $result['datapoint'];
 $total_income_nt = $result['income'];
 $total_outlay_nt = $result['outlay'];
+
+// get year raw data
+$resultYear = printStatisticYearData($mode,$user_id,$start_time_Year,$end_time_Year);
+$dataPointsYear = $resultYear['datapoint'];
+$total_income_nt_Year = $resultYear['income'];
+$total_outlay_nt_Year = $resultYear['outlay'];
+
+
 ?>
 
 <html>
@@ -58,15 +76,25 @@ $total_outlay_nt = $result['outlay'];
 		  google.charts.setOnLoadCallback(drawChart);
 
 		  function drawChart() {
-			var data = new google.visualization.DataTable();
-			data.addColumn({ type: 'string', id: 'date' });
-			data.addColumn({ type: 'number', id: 'income', label: '收入' });
-			data.addColumn({ type: 'number', id: 'outlay', label: '支出' });
-			data.addColumn({ type: 'number', id: 'render', label: '結算' });
+			var dataMonth = new google.visualization.DataTable();
+			dataMonth.addColumn({ type: 'string', id: 'date' });
+			dataMonth.addColumn({ type: 'number', id: 'income', label: '收入' });
+			dataMonth.addColumn({ type: 'number', id: 'outlay', label: '支出' });
+			dataMonth.addColumn({ type: 'number', id: 'render', label: '結算' });
 			
-			data.addRows([
+			dataMonth.addRows([
 			  <? echo $dataPoints; ?>
 			  ]);
+			  
+			var dataYear = new google.visualization.DataTable();
+			dataYear.addColumn({ type: 'string', id: 'date' });
+			dataYear.addColumn({ type: 'number', id: 'income', label: '收入' });
+			dataYear.addColumn({ type: 'number', id: 'outlay', label: '支出' });
+			dataYear.addColumn({ type: 'number', id: 'render', label: '結算' });
+			
+			dataYear.addRows([
+			  <? echo $dataPointsYear; ?>
+			  ]);  
 
 
 			var options = {
@@ -85,12 +113,21 @@ $total_outlay_nt = $result['outlay'];
 			  }
 			};
 
-			var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
-
-			chart.draw(data, options);
+			var chartMonth = new google.visualization.LineChart(document.getElementById('line_chart_month'));
+			chartMonth.draw(dataMonth, options);
+			
+			var chartYear = new google.visualization.LineChart(document.getElementById('line_chart_year'));
+			chartYear.draw(dataYear, options);
+			
 		  }
 		</script>
 		<!-- line chart -->
+		
+		<script type="text/javascript">					
+			var slideIndex = <? echo $slideno; ?>;			
+		</script>
+		
+		
 		
 	</head>
 	
@@ -113,69 +150,23 @@ $total_outlay_nt = $result['outlay'];
 					</header>
 					 <? printStatisticMenu(); ?>
 			</section>
-
 			
 			<section id="main" class="wrapper">
-				<div class="inner">
-					<div class="content">
-					
-					<div class="row" id="monthSwitch" style="text-align: center;">
-						<div class="col-4">
-						<input type="button" class="button primary small" value="<" onclick="changeMonth('-');" id="SubMonth"></input>
-						</div>
-						
-						<div class="col-4">
-						<p id="selectMonth"><? echo $curMonth; ?></p>
-						</div>
-						
-						<div class="col-4">
-						<input type="button" class="button primary small" value=">" onclick="changeMonth('+');" id="AddMonth"></input>
-						</div>
-					</div>
-					
-					
-					<div class=\"table-wrapper\">						
-						<table>
-							<thead>
-								<tr>
-									<th>總收入</th>
-									<th>總支出</th>
-									<th>結算</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td><font color="green">NT$ <? echo $total_income_nt; ?></font></td>
-									<td><font color="red">NT$ <? echo $total_outlay_nt; ?></font></td>
-									<td><font color="blue">NT$ <? echo ($total_income_nt-$total_outlay_nt); ?></font></td>
-								</tr>				
-							</tbody>									
-						</table>
-					</div>
-					
-					
-					<div id="curve_chart" style="width: 100%; height: 500px"></div>
-					<?
-						if(!is_mobile())
-						{
-							$height_str = 'height:800px;';
-						}
-						echo 
-					 '<iframe src="calendar_view.php?user_id='.$user_id.'&start_time='.$start_time.'&end_time='.$end_time.'" style="width:100%; '.$height_str.'overflow:hidden; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;">
-					</iframe>';
-							
-							
-						?>			
-					</div>
-				</div>
+			<? 
+				require_once('./header/statistic_by_month.php');
+				require_once('./header/statistic_by_year.php');
+				
+			?>
 			</section>
+		
+
 			<? 
 				require_once('./header/footer.php'); 						
 			?>
 
 				 
-		<!-- Scripts -->							
-			<script src="header/slideshow.js" type="text/javascript"></script>
+		<!-- Scripts -->										
+			<script src="header/slideshow.js" type="text/javascript"></script>			
 			<script src="assets/js/jquery.min.js"></script>
 			<script src="assets/js/browser.min.js"></script>
 			<script src="assets/js/breakpoints.min.js"></script>
@@ -243,7 +234,7 @@ function printStatisticMenu()
 	echo $htmlStr;
 }
 
-function printStatisticData($mode,$user_id,$start_time,$end_time)
+function printStatisticMonthData($mode,$user_id,$start_time,$end_time)
 {	
 	$result = array();
 	$queryResult = getStatisticByWeek($mode,$user_id,$start_time,$end_time);	
@@ -278,6 +269,46 @@ function printStatisticData($mode,$user_id,$start_time,$end_time)
 	
 	return $result;
 }
+
+function printStatisticYearData($mode,$user_id,$start_time,$end_time)
+{	
+	$result = array();
+	$queryResult = getStatisticByMonth($mode,$user_id,$start_time,$end_time);	
+	
+	$dataPoints = "";
+	$count=0;
+	$total_income = 0;
+	$total_outlay = 0;
+	
+	while($temp=mysqli_fetch_assoc($queryResult['DATA']))
+	{		
+		$date = $temp['month'];
+		$nt_income = $temp['nt_income'];
+		$nt_outlay = $temp['nt_outlay'];
+		
+		$total_income += $nt_income;
+		$total_outlay += $nt_outlay;
+		
+		if($count==0)
+		{
+			$dataPoints .= '';	
+		}
+		else
+		{
+			$dataPoints .= ',';	
+		}
+		$dataPoints .= '[ ("'.$date.'"), '.$nt_income.', '.$nt_outlay.', '.($nt_income-$nt_outlay).']';
+		$count++;
+	}
+	$result['datapoint'] = $dataPoints;
+	$result['income'] = $total_income;
+	$result['outlay'] = $total_outlay;
+	
+	return $result;
+}
+
+
+
 function printDailyOverheadData($user_id,$start_time,$end_time)
 {
 	$queryResult = getOverheadRawdata($user_id,$start_time,$end_time);

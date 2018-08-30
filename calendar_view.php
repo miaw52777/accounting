@@ -6,10 +6,13 @@ include_once("function/StatisticFunc.php");
 
 
 $user_id = $_GET['user_id'];
+$show_time = $_GET['show_time'];
 $start_time = $_GET['start_time'];
 $end_time = $_GET['end_time'];
 $mode = $_GET['mode'];
 if($mode == '') $mode = 'nt';
+if($show_time == '') $show_time = $start_time;
+
 $queryResult = getOverheadRawdata($user_id,$start_time,$end_time);
 
 if($queryResult['RESULT'])
@@ -132,7 +135,7 @@ else
   $(document).ready(function() {
 
     $('#calendar').fullCalendar({
-      defaultDate: '<? echo $start_time; ?>',
+      defaultDate: '<? echo $show_time; ?>',
       editable: false,
       eventLimit: true, 
 	  navLinks: true, 

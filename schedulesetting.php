@@ -27,21 +27,98 @@ $user_id = "miaw52777";
 			echo printmenuList();
 		?> 
 				
-
+		<!-- Heading -->
+		<div id="heading" >
+			<h1></h1>
+		</div>	
+	
 		<!-- History -->
-			<section class="wrapper">
+			<section id="main" class="wrapper">
 				<div class="inner">
-					<header class="special">
-						<h2>Show History</h2>	
-						 					
+					<div class="content">
+						<? 
+							require_once('schduleEditForm.php'); 
+							$paramArr = array();
+			
+					if($_GET['action'] == "updateoverhead")
+					{		
+						$action = 'UPDATE';		
+						$paramArr['GUID'] = $_GET['guid'];		
+						$paramArr['TITLE'] = "編輯排程";
 						
-					</header>
-					<div class="testimonials">
-						 
+						$rule = getOverheadRecord_Select_Rule('GUID',$paramArr['GUID']);				
+						$overhead_record_result = getOverheadRecord($user_id,$rule);
+								
 						
+						if($overhead_record_result['RESULT'])
+						{
+							$paramArr['OVERHEAD_DATE'] = getSQLResultInfo($overhead_record_result['DATA'],'overhead_date');
+							$paramArr['OVERHEAD_TIME'] = getSQLResultInfo($overhead_record_result['DATA'],'overhead_time');
+							$paramArr['STATISTIC_TIME'] = getSQLResultInfo($overhead_record_result['DATA'],'statistic_time');
+							$paramArr['NT'] = getSQLResultInfo($overhead_record_result['DATA'],'nt');
+							$paramArr['PNT'] = getSQLResultInfo($overhead_record_result['DATA'],'pnt');
+							$overhead_category = getSQLResultInfo($overhead_record_result['DATA'],'overhead_category');
+							if($overhead_category == "支出")
+							{
+								$paramArr['OVERHEAD_CATEGORY_OUTLAY'] = "SELECTED";
+								$paramArr['OVERHEAD_CATEGORY_INCOME'] = "";
+							}
+							else
+							{
+								$paramArr['OVERHEAD_CATEGORY_OUTLAY'] = "";
+								$paramArr['OVERHEAD_CATEGORY_INCOME'] = "SELECTED";
+							}
+							if(getSQLResultInfo($overhead_record_result['DATA'],'is_statistic') == "F") $paramArr['IS_STATISTIC'] = "CHECKED";			
+							else $paramArr['IS_STATISTIC'] = "";
+							
+							if(getSQLResultInfo($overhead_record_result['DATA'],'is_necessary') == "T") $paramArr['IS_NECESSARY'] = "CHECKED";			
+							else $paramArr['IS_NECESSARY'] = "";
+							
+							
+							$paramArr['MEMO'] = getSQLResultInfo($overhead_record_result['DATA'],'Memo');
+							$paramArr['OVERHEAD_METHOD'] = getSQLResultInfo($overhead_record_result['DATA'],'method');
+							$paramArr['OVERHEAD_NAME'] = getSQLResultInfo($overhead_record_result['DATA'],'overhead_item');
+							$paramArr['OVERHEAD_TYPE'] = getSQLResultInfo($overhead_record_result['DATA'],'overhead_type');		
+							$paramArr['USER_ID'] = $user_id;		
+							$paramArr['ITEM'] = getSQLResultInfo($overhead_record_result['DATA'],'overhead_item');		
+							//var_dump($paramArr);
+							echo generateOverheadForm($action, $paramArr);			
+						}
+						else
+						{
+							echo 'Error : '.$overhead_record_result['MSG'];
+						}		
+					}
+					else
+					{
+						$action = 'NEW';		
+						$paramArr['TITLE'] = "新增排程";
+						$paramArr['ITEM'] = "";
+						$paramArr['OVERHEAD_DATE'] = getToday();
+						$paramArr['OVERHEAD_TIME'] = getNowTime();
+						$paramArr['STATISTIC_TIME'] = getToday();
+						$paramArr['NT'] = "";
+						$paramArr['PNT'] = "";
+						$paramArr['OVERHEAD_CATEGORY_OUTLAY'] = "SELECT";
+						$paramArr['OVERHEAD_CATEGORY_INCOME'] = "";
+						$paramArr['IS_STATISTIC'] = "";
+						$paramArr['IS_NECESSARY'] = "";
+						$paramArr['MEMO'] = "";
+						$paramArr['OVERHEAD_METHOD'] = "";
+						$paramArr['OVERHEAD_NAME'] = "";
+						$paramArr['OVERHEAD_TYPE'] = "";
+						$paramArr['GUID'] = "";
+						$paramArr['USER_ID'] = $user_id;		
+						echo generateOverheadForm($action, $paramArr);
+						
+					}
+					
+				?>
+					
 					</div>
 				</div>
 			</section>
+	
 
 			<? 
 				require_once('./header/footer.php'); 						

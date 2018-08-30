@@ -1,9 +1,9 @@
-﻿var slideIndex = 1;
+﻿
 showSlides(slideIndex);
 
 // Next/previous controls
 function plusSlides(n) {
-  showSlides(slideIndex += n);
+  showSlides(slideIndex += n);  
 }
 
 // Thumbnail image controls
@@ -25,4 +25,21 @@ function showSlides(n) {
   }
   slides[slideIndex-1].style.display = "block"; 
   dots[slideIndex-1].className += " active";
+   
+  
+  if(slideIndex == "1")
+  {	  
+	  document.getElementById("main_month").style.display = "";	
+	  document.getElementById("main_year").style.display = "none";		  
+  }
+  else if(slideIndex == "2")
+  {
+	  document.getElementById("main_month").style.display = "none";	
+	  document.getElementById("main_year").style.display = "";	
+  }
+  else 	  
+  {
+	  document.getElementById("main_month").style.display = "none";	
+	  document.getElementById("main_year").style.display = "none";	
+  }
 }

@@ -31,26 +31,30 @@ function getStatisticByWeek($mode,$user_id,$start_time,$end_time,$rule='')
 }
 
 // 統計收入/支出 By Month
-function getStatisticByMonth($user_id,$start_time,$end_time,$rule='')
+function getStatisticByMonth($mode,$user_id,$start_time,$end_time,$rule='')
 {
 	include_once("conn.php");	
 	include_once("CommFunc.php");	
 	
+	if($mode == 'pnt') $modeStr = 'pnt'; 
+	else if($mode == 'nt_filter_non_statistic') $modeStr = 'nt_filter_non_statistic'; 
+	else if($mode == 'pnt_filter_non_statistic') $modeStr = 'pnt_filter_non_statistic'; 
+	else $modeStr = 'nt'; 
+	
 	$rawsql = overheadRawdataSQL($rule);
-	$querySQL = "select month,statistic_time,overhead_category
-						,sum(nt) nt
-						,sum(pnt) pnt
-						,sum(nt_filter_non_statistic) nt_filter_non_statistic
-						,sum(pnt_filter_non_statistic) pnt_filter_non_statistic
+	
+	$querySQL = "select month
+						,sum(case when overhead_category='收入' then :NT else 0 end) nt_income
+						,sum(case when overhead_category='支出' then :NT else 0 end) nt_outlay
 				from
 				(
 					".$rawsql."	
 				)t    
-				group by month,statistic_time,overhead_category
+				group by month
 				";	
 		
-	$sourceStr = array(":USER_ID",":START_TIME", ":END_TIME");
-	$replaceStr = array($user_id,$start_time,$end_time);					
+	$sourceStr = array(':NT',":USER_ID",":START_TIME", ":END_TIME");
+	$replaceStr = array($modeStr,$user_id,$start_time,$end_time);					
 	$querySQL = str_replace($sourceStr,$replaceStr,$querySQL);		
 	
 	$returnMsg = QuerySQL($querySQL);		
