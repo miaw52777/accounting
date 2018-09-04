@@ -85,6 +85,7 @@ function overheadRawdataSQL($rule='')
 					,case when t.is_statistic = 'F' then 0 else t.nt end nt_filter_non_statistic    
 					,case when t.is_statistic = 'F' then 0 else t.pnt end pnt_filter_non_statistic
 					,t.*    
+					,DATE(rectime) overhead_date, time(rectime) overhead_time
 				FROM overhead_record t
 				where 1=1
 				   and t.statistic_time >= ':START_TIME'

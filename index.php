@@ -4,8 +4,16 @@ include_once("function/conn.php");
 include_once("function/CommFunc.php");
 include_once("function/Mobile_Check.php");
 include_once("function/OverheadFunc.php"); 
+include('./secure.php');
 
-$user_id = $_GET['user_id'];
+// check login
+if(!is_login())
+{
+	header("Location: login.php");
+	exit;
+} 
+
+$user_id = $_SESSION['user_id'];
 
 ?>
 
@@ -30,7 +38,8 @@ $user_id = $_GET['user_id'];
 		<!-- Banner -->
 			<section id="banner">
 				<div class="inner">
-					<h1>Accounting Home</h1>					
+					<h1>Accounting Home</h1>	
+					<p>user : <? echo $user_id; ?></P>
 				</div>
 				<video autoplay loop muted playsinline src="images/banner.mp4"></video>				
 			</section>
@@ -38,7 +47,8 @@ $user_id = $_GET['user_id'];
 		<!-- New or Edit -->
 			<section class="wrapper">
 				<div class="inner">
-				<? 
+				<? 				
+				
 			require_once('./overheadRecordForm.php'); 
 			$paramArr = array();
 			

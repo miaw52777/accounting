@@ -88,7 +88,7 @@ function generateOverheadForm($action, $paramArr)
 					 <select id="sel_overhead_Item" onchange = "sel_overhead_Item_change(this.value,\':OPTION_STR\');">
 						<option value="">-Select-</option>	';
 						
-						
+							// 食衣住行...
 							mysqli_data_seek($overhead_item_list['DATA'],0); // 移回第一筆資料	
 							while($temp=mysqli_fetch_assoc($overhead_item_list['DATA']))
 							{					
@@ -100,7 +100,7 @@ function generateOverheadForm($action, $paramArr)
 									$htmlTemplate .=  '<option value="'.$temp['name'].'" '.$is_select.'>'.$temp['name'].'</option>';
 								}
 							}
-						
+					// 收入/支出	
 					$htmlTemplate .= '	</select>				 
 					 </div>
 					 <div class="col-3">
@@ -112,7 +112,7 @@ function generateOverheadForm($action, $paramArr)
 					<div class="col-3">
 					 <select name="overhead_Method" id="overhead_Method"> ';
 					 
-						
+						// 現金...
 						$returnMsg = getOverheadMethod($user_id);	
 						
 						if(!$returnMsg['RESULT'])						

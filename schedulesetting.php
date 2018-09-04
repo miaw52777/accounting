@@ -4,8 +4,16 @@ include_once("function/conn.php");
 include_once("function/CommFunc.php");
 include_once("function/Mobile_Check.php");
 include_once("function/OverheadFunc.php"); 
+include('./secure.php');
 
-$user_id = "miaw52777";
+// check login
+if(!is_login())
+{
+	header("Location: login.php");
+	exit;
+} 
+
+$user_id = $_SESSION['user_id'];
 
 ?>
 

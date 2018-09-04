@@ -21,6 +21,17 @@ function getOverhead_Item_List($user_id)
 	return $returnMsg;	
 }
 
+//取得 default 開銷項目所有 TYPE(食衣住行...)
+function getOverhead_Item_List_Type($user_id)
+{
+	include_once("conn.php");	
+	include_once("CommFunc.php");	
+	$querySQL = 'SELECT distinct type FROM Overhead_Item_List where 1=1 and user_id=\''.$user_id.'\' order by seq';	
+	
+	$returnMsg = QuerySQL($querySQL);		
+	return $returnMsg;	
+}
+
 // 取得 OverheadRecord 查詢條件
 function getOverheadRecord_Select_Rule($col, $value)
 {	
@@ -65,6 +76,10 @@ function getOverheadRecord_Select_Rule($col, $value)
 		elseif(strtoupper($col)  == "MEMO")
 		{
 			$rule = sprintf(' and MEMO like %s ',GetSqlValueString($value,'text'));			
+		}	
+		elseif(strtoupper($col)  == "ITEM")
+		{
+			$rule = sprintf(' and overhead_item like %s ',GetSqlValueString($value,'text'));			
 		}	
 	}
 	
@@ -156,6 +171,31 @@ function deleteOverheadRecord($guid)
 	
 	$returnMsg = ExecuteSQL($sql);		
 	
+	return $returnMsg;	
+}
+
+
+
+
+//取得銷帳戶資訊
+function getOverhead_Account_Info($user_id)
+{
+	include_once("conn.php");	
+	include_once("CommFunc.php");	
+	$querySQL = 'SELECT * FROM overhead_account where 1=1 and user_id=\''.$user_id.'\' order by seq';	
+	
+	$returnMsg = QuerySQL($querySQL);		
+	return $returnMsg;	
+}
+
+//取得銷帳戶資訊-Name
+function getOverhead_Account_Name($user_id)
+{
+	include_once("conn.php");	
+	include_once("CommFunc.php");	
+	$querySQL = 'SELECT distinct name FROM overhead_account where 1=1 and user_id=\''.$user_id.'\' order by seq';	
+	
+	$returnMsg = QuerySQL($querySQL);		
 	return $returnMsg;	
 }
 

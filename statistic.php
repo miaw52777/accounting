@@ -5,10 +5,17 @@ include_once("function/CommFunc.php");
 include_once("function/OverheadFunc.php"); 
 include_once("function/StatisticFunc.php"); 
 include_once("function/Mobile_Check.php"); 
+include('./secure.php');
 
+// check login
+if(!is_login())
+{
+	header("Location: login.php");
+	exit;
+} 
 
 /* 參數區 start */
-$user_id = $_GET['user_id'];
+$user_id = $_SESSION['user_id'];
 $mode = 'nt';
 $month = $_GET['month'];
 $slideno = $_GET['slideno'];
@@ -48,8 +55,15 @@ else if($menulist[$slideno]['title'] == "各年統計")
 	$start_time = $curYear.'/01/01';
 	$end_time = $curYear.'/12/31';
 	$time_scale = 'year';
-	
 }
+else if($menulist[$slideno]['title'] == "進階搜尋")
+{
+	// initial month information
+	$start_time = $date->format('Y-m-01');
+	$end_time = $date->format('Y-m-t');
+	$time_scale = 'month';
+}
+
 $result = printStatisticData($time_scale,$mode,$user_id,$start_time,$end_time);
 $dataPoints = $result['datapoint'];
 $total_income_nt = $result['income'];
@@ -167,6 +181,8 @@ $total_outlay_nt = $result['outlay'];
 		</script>
 		<!-- line chart -->
 	 	
+		
+		
 	</head>
 	
 	<body class="is-preload">							
@@ -197,11 +213,15 @@ $total_outlay_nt = $result['outlay'];
 			
 				if($menulist[$slideno]['title'] == "各月統計")
 				{
-					require_once('./header/statistic_by_month.php');
+					require_once('./statistic_content/statistic_by_month.php');
 				}
 				else if($menulist[$slideno]['title'] == "各年統計")
 				{
-					require_once('./header/statistic_by_year.php');
+					require_once('./statistic_content/statistic_by_year.php');
+				}
+				else if($menulist[$slideno]['title'] == "進階搜尋")
+				{
+					require_once('./statistic_content/statistic_search.php');
 				}
 				
 			?>
@@ -229,9 +249,11 @@ function defineMenuList()
 {
 	$menulist = array();
 	$i=0;
-	/*$menulist[$i]['title'] = "各週統計";
-	$menulist[$i]['image'] = "image/week.png";
-	$i++;*/
+	$menulist[$i]['title'] = "進階搜尋";
+	$menulist[$i]['image'] = "image/search.png";
+	$menulist[$i]['pageurl'] = "?slideno=".$i;	
+	$i++;
+	
 	$menulist[$i]['title'] = "各月統計";
 	$menulist[$i]['image'] = "image/month.png";
 	$menulist[$i]['pageurl'] = "?slideno=".$i;	

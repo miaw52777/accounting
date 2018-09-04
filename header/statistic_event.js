@@ -58,3 +58,19 @@ function changeYear(action,slideIndex)
 	location.href = "?slideno="+ slideIndex +"&year="+curYear + "#main";
 }
 
+
+
+function radioOverheadtypeSelect(overheadtype)
+{		
+	if(overheadtype == "overall")
+	{
+		document.getElementById("overhead_type_radio_p").checked = false;
+		document.getElementById("overhead_type_radio_all").checked = true;
+	}
+	else 
+	{
+		document.getElementById("overhead_type_radio_p").checked = true;
+		document.getElementById("overhead_type_radio_all").checked = false;		
+	}
+}
+
