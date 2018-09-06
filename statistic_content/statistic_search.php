@@ -218,8 +218,8 @@
 												<table>
 													<thead>
 														<tr>
-															<th>總支出</th>
 															<th>總收入</th>
+															<th>總支出</th>
 															<th>結算</th>
 														</tr>
 													</thead>

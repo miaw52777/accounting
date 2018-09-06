@@ -1,6 +1,6 @@
-<?
+ï»¿<?
 
-// ¨ú±o¶}¾P¤è¦¡(²{ª÷)
+// å–å¾—é–‹éŠ·æ–¹å¼(ç¾é‡‘)
 function getOverheadMethod($user_id)
 {
 	include_once("conn.php");	
@@ -10,7 +10,7 @@ function getOverheadMethod($user_id)
 	return $returnMsg;
 }
 
-//¨ú±o default ¶}¾P¶µ¥Ø
+//å–å¾— default é–‹éŠ·é …ç›®
 function getOverhead_Item_List($user_id)
 {
 	include_once("conn.php");	
@@ -21,7 +21,7 @@ function getOverhead_Item_List($user_id)
 	return $returnMsg;	
 }
 
-//¨ú±o default ¶}¾P¶µ¥Ø©Ò¦³ TYPE(­¹¦ç¦í¦æ...)
+//å–å¾— default é–‹éŠ·é …ç›®æ‰€æœ‰ TYPE(é£Ÿè¡£ä½è¡Œ...)
 function getOverhead_Item_List_Type($user_id)
 {
 	include_once("conn.php");	
@@ -32,7 +32,7 @@ function getOverhead_Item_List_Type($user_id)
 	return $returnMsg;	
 }
 
-// ¨ú±o OverheadRecord ¬d¸ß±ø¥ó
+// å–å¾— OverheadRecord æŸ¥è©¢æ¢ä»¶
 function getOverheadRecord_Select_Rule($col, $value)
 {	
 	$rule = "";
@@ -92,7 +92,7 @@ function getOverheadRecord_Select_Rule($col, $value)
 }
 
 
-//¬d¸ß¶}¾P¬ö¿ý
+//æŸ¥è©¢é–‹éŠ·ç´€éŒ„
 function getOverheadRecord($user_id,$rule = '', $limit=50)
 {
 	include_once("conn.php");	
@@ -111,7 +111,7 @@ function getOverheadRecord($user_id,$rule = '', $limit=50)
 }
 
 
-//·s¼W¶}¾P¶µ¥Ø
+//æ–°å¢žé–‹éŠ·é …ç›®
 function newOverhead($guid,$user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo,$statistic_time,$rectime)
 {
 	$sql = "INSERT INTO overhead_record (guid, user_id, is_statistic,is_necessary, overhead_type, overhead_category, overhead_item, method, nt, pnt, Memo, statistic_time, rectime) 
@@ -129,7 +129,7 @@ function newOverhead($guid,$user_id,$is_statistic,$is_necessary,$type,$category,
 	return $returnMsg;	
 }
 
-//­×§ï¶}¾P¤º®e
+//ä¿®æ”¹é–‹éŠ·å…§å®¹
 function updateOverhead($guid,$user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo,$statistic_time,$rectime)
 {
 	$sql = "update overhead_record 
@@ -160,7 +160,7 @@ function updateOverhead($guid,$user_id,$is_statistic,$is_necessary,$type,$catego
 	
 	return $returnMsg;	
 }
-// §R°£¶}¾P
+// åˆªé™¤é–‹éŠ·
 function deleteOverheadRecord($guid)
 {
 	$sql = "delete from overhead_record where 1=1 and guid = '$guid'";
@@ -177,7 +177,7 @@ function deleteOverheadRecord($guid)
 
 
 
-//¨ú±o¾P±b¤á¸ê°T
+//å–å¾—éŠ·å¸³æˆ¶è³‡è¨Š
 function getOverhead_Account_Info($user_id)
 {
 	include_once("conn.php");	
@@ -188,7 +188,7 @@ function getOverhead_Account_Info($user_id)
 	return $returnMsg;	
 }
 
-//¨ú±o¾P±b¤á¸ê°T-Name
+//å–å¾—éŠ·å¸³æˆ¶è³‡è¨Š-Name
 function getOverhead_Account_Name($user_id)
 {
 	include_once("conn.php");	
@@ -198,6 +198,43 @@ function getOverhead_Account_Name($user_id)
 	$returnMsg = QuerySQL($querySQL);		
 	return $returnMsg;	
 }
+
+
+// ç›®å‰æ‰€æœ‰æ”¯å‡º/æ”¶å…¥/çµç®—
+function SummaryTotalSettlement($user_id)
+{
+	include_once("conn.php");	
+	include_once("CommFunc.php");	
+	$sql = "select (income-outlay) settlement, income, outlay
+			FROM
+			(
+				select 
+				(
+					SELECT sum(nt)  nt
+					FROM overhead_record
+					where 1=1
+						and overhead_category = 'æ”¶å…¥'
+						and user_id = '".$user_id."'
+						and is_statistic = 'T'
+				) income
+				,(
+					SELECT sum(nt)  nt
+					FROM overhead_record
+					where 1=1
+						and overhead_category = 'æ”¯å‡º'
+						and user_id = '".$user_id."'
+						and is_statistic = 'T'
+				  ) outlay
+				from dual  
+			)t
+			";
+	$returnMsg = QuerySQL($sql);		
+	return $returnMsg;	
+}
+
+
+
+
 
 ?>
 

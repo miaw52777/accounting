@@ -69,6 +69,14 @@ $dataPoints = $result['datapoint'];
 $total_income_nt = $result['income'];
 $total_outlay_nt = $result['outlay'];
 
+
+// 取得目前收入/支出/結算
+$querySummaryResult = SummaryTotalSettlement($user_id);
+$SummarySettlement = getSQLResultInfo($querySummaryResult['DATA'], 'settlement');
+$SummaryIncome = getSQLResultInfo($querySummaryResult['DATA'], 'income');
+$SummaryOutlay = getSQLResultInfo($querySummaryResult['DATA'], 'outlay');
+
+
 ?>
 
 <html>
@@ -195,7 +203,7 @@ $total_outlay_nt = $result['outlay'];
 				
 		<!-- Heading -->
 		<div id="heading" >
-			<h1></h1>
+			<h1>Statistic</h1>
 		</div>		
 
 		<!-- 統計 slideshow menu -->
@@ -203,6 +211,11 @@ $total_outlay_nt = $result['outlay'];
 				<div class="inner">
 					<header class="special">
 						<h2>Show Statistic Chart</h2>						
+						<p>
+						user : <? echo $user_id; ?><br>
+						帳戶總計 : <? echo $SummarySettlement; ?>
+						</P>
+						
 					</header>
 					 <? printStatisticMenu($menulist, $slideno); ?>	
 			</section>
