@@ -11,8 +11,8 @@ if(isset($_POST['email']) && isset($_POST['pass']))
 	{
 		// check priv pass		$_SESSION['loginuid'] = '1';
 		$_SESSION['user_id'] = $user_id;
-		echo json_encode(array('success' => true));		
-		header("Location: index.php");
+		echo json_encode(array('success' => true));				if($_POST['page'] != "")		{			header("Location: ".$_POST['page']);		}
+		else header("Location: index.php");
 	}
 	else
 	{

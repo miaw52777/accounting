@@ -7,9 +7,9 @@ include_once("function/OverheadFunc.php");
 include('./secure.php');
 
 // check login
-if(!is_login())
-{
-	header("Location: login.php");
+if( !is_login())
+{	
+	header("Location: login.php?page=".$_SERVER['REQUEST_URI']);
 	exit;
 } 
 

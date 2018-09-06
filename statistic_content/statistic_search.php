@@ -2,23 +2,25 @@
 	$rule = '';	
 	
 	
-	if($_POST['overhead_type_radio_p'] == 'on') $mode = "pnt";
-	else if($_POST['overhead_type_radio_all'] == 'on') $mode = "nt";
+	/*if($_GET['overhead_type_radio_p'] == 'on') $mode = "pnt";
+	else if($_GET['overhead_type_radio_all'] == 'on') $mode = "nt";
+	*/
 	
-	if($_POST['is_statistic'] == 'on') $rule .= getOverheadRecord_Select_Rule('IS_STATISTIC','T');
 	
-	if(isset($_POST['start_date']))
+	if($_GET['is_statistic'] == 'on') $rule .= getOverheadRecord_Select_Rule('IS_STATISTIC','T');
+	
+	if(isset($_GET['start_date']))
 	{
-		$start_time = $_POST['start_date'];
-	    $end_time = $_POST['end_date'];
+		$start_time = $_GET['start_date'];
+	    $end_time = $_GET['end_date'];
 	}
 		
-	$overhead_category = $_POST['overhead_category'];
-	$overhead_type = $_POST['overhead_type'];
-	$overhead_method = $_POST['overhead_method'];
+	$overhead_category = $_GET['overhead_category'];
+	$overhead_type = $_GET['overhead_type'];
+	$overhead_method = $_GET['overhead_method'];
 	
-	$overhead_Item = $_POST['overhead_Item'];
-	$memo = $_POST['memo'];
+	$overhead_Item = $_GET['overhead_Item'];
+	$memo = $_GET['memo'];
 	
 	
 	if($overhead_type != '' ) $rule .= getOverheadRecord_Select_Rule('OVERHEAD_TYPE',$overhead_type);
@@ -31,23 +33,6 @@
 	<section id="main" class="wrapper" name="main">
 				<div class="inner">
 					<div class="content">	
-					<form id='searchOverheadForm' action="?slide=0" method="Post">
-					
-						<div class="row gtr-uniform">
-							<div class="col-4 col-12-small">
-								<input type="radio" id="overhead_type_radio_p" name="overhead_type_radio_p" onclick="radioOverheadtypeSelect('personal');" checked >
-								<label for="overhead_type_radio_p">個人開銷</label>
-							
-								<input type="radio" id="overhead_type_radio_all" name="overhead_type_radio_all" onclick="radioOverheadtypeSelect('overall');">
-								<label for="overhead_type_radio_all">全部開銷</label>
-							</div>
-							<div class="col-6 col-12-xsmall">
-								<input type="checkbox" id="is_statistic" name="is_statistic" :IS_STATISTIC>
-								<label for="is_statistic">濾除不納入統計</label>						
-							</div>
-						</div>	
-						
-						<br>
 						<div class="row gtr-uniform">
 							<div class="col-6 col-12-xsmall">
 								<h3>日期範圍 : 
@@ -57,8 +42,8 @@
 											echo '<br>';
 										}
 									?>
-									<input type="date" name="start_date" id="end_date" value="<? echo $start_time; ?>" placeholder="Name" />~
-									<input type="date" name="end_date" id="end_date" value="<? echo $end_time; ?>" placeholder="Name" />													
+									<input type="date" name="start_date" id="start_date" value="<? echo $start_time; ?>" />~
+									<input type="date" name="end_date" id="end_date" value="<? echo $end_time; ?>" />													
 								</h3>								
 							</div>							
 							
@@ -68,18 +53,34 @@
 							<div class="col-4">
 									<select name="overhead_category" id = "overhead_category">
 										<option value="" >-方式-</option>　
-										<option value="支出" style="color:red">支出</option>
-									　<option value="收入" style="color:green"> 收入</option>					
+										<?											
+											$overhead_category_list = array(0=>array("value"=>"支出","color"=>"red"), 1=>array("value"=>"收入","color"=>"green"));
+											
+											for($i=0;$i<count($overhead_category_list);$i++)
+											{											
+												if($overhead_category == $overhead_category_list[$i]['value'])
+												{
+													$is_select = "selected";
+												}
+												else $is_select = "";
+												
+												echo '<option value="'.$overhead_category_list[$i]['value'].'" style="color:'.$overhead_category_list[$i]['color'].'" '.$is_select.'>'.$overhead_category_list[$i]['value'].'</option>';												
+											}
+										?>											
 									</select>										
-							</div>							
+							</div>				
+							
 							<div class="col-4">
 									<select name="overhead_type" id = "overhead_type">
 										<option value="" >-類型-</option>　
 										<?
-											$overhead_type = getOverhead_Item_List_Type($user_id);
-											while($temp=mysqli_fetch_assoc($overhead_type['DATA']))
-											{					
-												echo '<option value="'.$temp['type'].'">'.$temp['type'].'</option>';
+											$overhead_type_result = getOverhead_Item_List_Type($user_id);
+											while($temp=mysqli_fetch_assoc($overhead_type_result['DATA']))
+											{				
+												if($overhead_type == $temp['type']) $is_select = "selected";
+												else $is_select = "";
+												
+												echo '<option value="'.$temp['type'].'" '.$is_select.'>'.$temp['type'].'</option>';
 											}
 										
 										?>										
@@ -91,8 +92,11 @@
 										<?
 											$accout_list = getOverhead_Account_Name($user_id);
 											while($temp=mysqli_fetch_assoc($accout_list['DATA']))
-											{					
-												echo '<option value="'.$temp['name'].'">'.$temp['name'].'</option>';
+											{		
+												if($overhead_method == $temp['name']) $is_select = "selected";
+												else $is_select = "";
+												
+												echo '<option value="'.$temp['name'].'" '.$is_select.'>'.$temp['name'].'</option>';
 											}
 										
 										?>										
@@ -102,10 +106,10 @@
 						<br>
 						<div class="row gtr-uniform">
 							<div class="col-6 col-12-xsmall">
-								<input name="overhead_Item" id="overhead_Item" type="text" size="10" placeholder="項目"/>
+								<input name="overhead_Item" id="overhead_Item" type="text" size="10" placeholder="項目" value="<? echo $overhead_Item; ?>" />
 							</div>
 							<div class="col-6 col-12-xsmall">
-								<input name="memo" id="memo" type="text" size="10" placeholder="備註"/>				
+								<input name="memo" id="memo" type="text" size="10" placeholder="備註" value="<? echo $memo; ?>"/>				
 							</div>	
 						</div>
 						<br>
@@ -115,12 +119,12 @@
 							</div>
 						</div>
 						
-					</form>
+					
 					
 					
 					
 					<?						
-						if(isset($_POST['start_date']))
+						if(isset($_GET['start_date']))
 						{
 							$queryResult = getOverheadRawdata($user_id,$start_time,$end_time,$rule);
 							//var_dump($queryResult['SQL']);

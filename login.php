@@ -72,6 +72,10 @@
 							<i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
 						</a>
 					</div>						
+					<? 
+					if(isset($_GET['page'])) $page = $_GET['page'];	
+					echo '<input type="hidden" name="page" value="'.$page.'"/>'; 
+				   ?>
 				</form>
 			</div>
 		</div>

@@ -4,7 +4,7 @@
 				
 					<div class="row" id="monthSwitch" style="text-align: center;">
 						<div class="col-4">
-						<input type="button" class="button primary small" value="<" onclick="changeYear('-','<? echo $slideno;?>');" id="SubYear"></input>
+						<input type="button" class="button primary small" value="<" onclick="changeYear('-');" id="SubYear"></input>
 						</div>
 						
 						<div class="col-4">
@@ -12,7 +12,7 @@
 						</div>
 						
 						<div class="col-4">
-						<input type="button" class="button primary small" value=">" onclick="changeYear('+','<? echo $slideno;?>');" id="AddYear"></input>
+						<input type="button" class="button primary small" value=">" onclick="changeYear('+');" id="AddYear"></input>
 						</div>
 					</div>
 					

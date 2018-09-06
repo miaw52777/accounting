@@ -8,9 +8,9 @@ include_once("function/Mobile_Check.php");
 include('./secure.php');
 
 // check login
-if(!is_login())
-{
-	header("Location: login.php");
+if( !is_login())
+{	
+	header("Location: login.php?page=".$_SERVER['REQUEST_URI']);
 	exit;
 } 
 
@@ -20,11 +20,38 @@ $mode = 'nt';
 $month = $_GET['month'];
 $slideno = $_GET['slideno'];
 $curYear = $_GET['year'];
+$overhead_summary = $_GET['overhead_summary'];
+$is_statistic = $_GET['is_statistic'];
+
 /* 參數區 end */
 
 /* 參數區 default start */
 
 if($slideno == '') $slideno = '0';
+
+if(isset($_GET['start_date']))
+{
+	
+	if($_GET['overhead_type_radio_p'] == 'on')
+	{		
+		$overhead_summary = 'personal';
+	}
+	else if($_GET['overhead_type_radio_all'] == 'on')
+	{	
+		$overhead_summary = 'overall';
+	}
+
+}
+else
+{
+	if($is_statistic == "") $is_statistic = "T";	
+}
+
+
+if($overhead_summary == 'personal') $mode = "pnt";
+else $mode = "nt";
+	
+// start_time & end_time
 if($month == '') 
 {
 	$month = new DateTime(str_replace('-','/',getToday()));
@@ -34,6 +61,7 @@ else $date = new DateTime($month.'/01');
 
 $curMonth = $date->format('Y/m');
 if($curYear == '') $curYear = $date->format('Y');
+
 
 /* 參數區 default start */
 
@@ -59,12 +87,20 @@ else if($menulist[$slideno]['title'] == "各年統計")
 else if($menulist[$slideno]['title'] == "進階搜尋")
 {
 	// initial month information
-	$start_time = $date->format('Y-m-01');
-	$end_time = $date->format('Y-m-t');
+	if(isset($_GET['start_date']))
+	{
+		$start_time = $_GET['start_date'];
+		$end_time = $_GET['end_date'];		
+	}
+	else
+	{
+		$start_time = $date->format('Y-m-01');
+		$end_time = $date->format('Y-m-t');
+	}
 	$time_scale = 'month';
 }
 
-$result = printStatisticData($time_scale,$mode,$user_id,$start_time,$end_time);
+$result = printStatisticData($time_scale,$mode,$user_id,$start_time,$end_time,$is_statistic);
 $dataPoints = $result['datapoint'];
 $total_income_nt = $result['income'];
 $total_outlay_nt = $result['outlay'];
@@ -199,27 +235,68 @@ $SummaryOutlay = getSQLResultInfo($querySummaryResult['DATA'], 'outlay');
 			echo printmenuList();
 		?> 
 		
-		
+		<form id='StatisticOverheadForm' action="?slide=0#OptionMenu" method="get">
 				
 		<!-- Heading -->
 		<div id="heading" >
 			<h1>Statistic</h1>
 		</div>		
-
+		
+		<input name="slidno" id="slidno" type="hidden" value="<? echo $slideno; ?>"/>
+		<input name="curMonth" id="curMonth" type="hidden" value="<? echo $curMonth; ?>"/>
+		<input name="curYear" id="curYear" type="hidden" value="<? echo $curYear; ?>"/>
+		
 		<!-- 統計 slideshow menu -->
 			<section class="wrapper">
 				<div class="inner">
 					<header class="special">
-						<h2>Show Statistic Chart</h2>						
+						<h2>Show Statistic Chart</h2>						<div id ="OptionMenu"> </div>
 						<p>
 						user : <? echo $user_id; ?><br>
 						帳戶總計 : <? echo $SummarySettlement; ?>
 						</P>
 						
-					</header>
+					</header>					 
+					 
 					 <? printStatisticMenu($menulist, $slideno); ?>	
+					 
+					 <!-- Radio Option : Personal/Overall/Statistic -->
+					 <?
+							if($overhead_summary == 'personal') 
+							{
+								$checked_personal = "checked";
+								$checked_overall = "";
+							}
+							else
+							{
+								$checked_personal = "";
+								$checked_overall = "checked";								
+							}
+					 ?>
+					 <div style="text-align:center">
+						<div class="row gtr-uniform">
+							<div class="col-4 col-12-small">
+								<input type="radio" id="overhead_type_radio_p" name="overhead_type_radio_p" onclick="radioOverheadtypeSelect('personal');"  <? echo $checked_personal; ?> >
+								<label for="overhead_type_radio_p">個人開銷</label>
+								</div>
+							<div class="col-4 col-12-xsmall">
+								<input type="radio" id="overhead_type_radio_all" name="overhead_type_radio_all" onclick="radioOverheadtypeSelect('overall');" <? echo $checked_overall; ?> >
+								<label for="overhead_type_radio_all">全部開銷</label>
+							</div>
+							<div class="col-4 col-12-xsmall">
+								<?
+									$check_statistic = "";
+									if($is_statistic == "T")
+									{
+										$check_statistic = "checked";
+									}
+								?>
+								<input type="checkbox" id="is_statistic" name="is_statistic" onclick="statistic_checkbox_click();" <? echo $check_statistic; ?> >
+								<label for="is_statistic"><img src="./image/non_statistic.png" witdth="15" height="15" alt="不納入統計" title="不納入統計"></image>濾除不納入統計</label>
+							</div>
+						</div>							
+					</div>
 			</section>
-			
 			
 			
 			<? 
@@ -239,7 +316,7 @@ $SummaryOutlay = getSQLResultInfo($querySummaryResult['DATA'], 'outlay');
 				
 			?>
 			
-		
+		</form>
 
 			<? 
 				require_once('./header/footer.php'); 						
@@ -264,25 +341,25 @@ function defineMenuList()
 	$i=0;
 	$menulist[$i]['title'] = "進階搜尋";
 	$menulist[$i]['image'] = "image/search.png";
-	$menulist[$i]['pageurl'] = "?slideno=".$i;	
+	$menulist[$i]['pageurl'] = "?slideno=".$i."#OptionMenu";
 	$i++;
 	
 	$menulist[$i]['title'] = "各月統計";
 	$menulist[$i]['image'] = "image/month.png";
-	$menulist[$i]['pageurl'] = "?slideno=".$i;	
+	$menulist[$i]['pageurl'] = "?slideno=".$i."#OptionMenu";
 	
 	$i++;
 	$menulist[$i]['title'] = "各年統計";
 	$menulist[$i]['image'] = "image/year.png";
-	$menulist[$i]['pageurl'] = "?slideno=".$i;
+	$menulist[$i]['pageurl'] = "?slideno=".$i."#OptionMenu";
 	$i++;
 	$menulist[$i]['title'] = "項目排名";
 	$menulist[$i]['image'] = "image/ranking.png";
-	$menulist[$i]['pageurl'] = "?slideno=".$i;
+	$menulist[$i]['pageurl'] = "?slideno=".$i."#OptionMenu";
 	$i++;
 	$menulist[$i]['title'] = "類型比例";
 	$menulist[$i]['image'] = "image/piechart.png";
-	$menulist[$i]['pageurl'] = "?slideno=".$i;
+	$menulist[$i]['pageurl'] = "?slideno=".$i."#OptionMenu";
 	return $menulist;	
 }
 
@@ -324,18 +401,23 @@ function printStatisticMenu($menulist, $slideno)
 
 
 // 印出一個月的 RAW DATA
-function printStatisticData($time_scale, $mode,$user_id,$start_time,$end_time)
+function printStatisticData($time_scale, $mode,$user_id,$start_time,$end_time,$is_statistic)
 {	
+	$rule = "";	
+	if($is_statistic == "T") $rule .= getOverheadRecord_Select_Rule('IS_STATISTIC','T');
+	
 	$result = array();
 	if($time_scale == "month")
 	{
-		$queryResult = getStatisticByWeek($mode,$user_id,$start_time,$end_time);	
+		$queryResult = getStatisticByWeek($mode,$user_id,$start_time,$end_time,$rule);	
 	}
 	else if($time_scale == "year")
 	{
-		$queryResult = getStatisticByMonth($mode,$user_id,$start_time,$end_time);			
+		$queryResult = getStatisticByMonth($mode,$user_id,$start_time,$end_time,$rule);			
 	}
 	else {return;}
+	
+	//var_dump($queryResult);
 	
 	$dataPoints = "";
 	$count=0;
@@ -378,121 +460,5 @@ function printStatisticData($time_scale, $mode,$user_id,$start_time,$end_time)
 }
 
 
-
-function printDailyOverheadData($user_id,$start_time,$end_time)
-{
-	$queryResult = getOverheadRawdata($user_id,$start_time,$end_time);
-	
-	if($queryResult['RESULT'])
-	{		
-		$total_income_nt = 0;
-		$total_outlay_nt = 0;
-		$total_income_nt_daily = 0;
-		$total_outlay_nt_daily = 0;
-		$tmpday="";
-		$htmlResult = "";
-				
-		
-		while($temp=mysqli_fetch_assoc($queryResult['DATA']))
-		{		
-			$nt = $temp['nt'];
-			if($temp['overhead_category'] == "收入") $total_income_nt += $nt;
-			if($temp['overhead_category'] == "支出") $total_outlay_nt += $nt;
-			
-			if(($tmpday == "") || ($tmpday != $temp['statistic_time']))
-			{
-				$sourceStr = array(":DATE", ":TOTAL_OUTLAY_NT",":RECORD",":TOTAL_INCOME_NT",":TOTAL_SUM_NT");
-				$replaceStr   = array($tmpday,$total_outlay_nt_daily,$recordHtml,$total_income_nt_daily,$total_income_nt_daily-$total_outlay_nt_daily);
-				$html = str_replace($sourceStr,$replaceStr,$html);	
-				$htmlResult .= $html;
-			
-				$html = "<div class=\"table-wrapper\">
-						<b>:DATE</b>
-						<table>
-							<thead>
-								<tr>
-									<th></th>
-									<th></th>
-									<th></th>
-								</tr>
-							</thead>
-							<tbody>
-								:RECORD					
-							</tbody>
-							<tfoot>
-								<tr>
-									<td colspan=\"2\"><font color=\"green\">收入 : NT$:TOTAL_INCOME_NT</font></td>
-									<td><font color=\"red\">支出 : NT$:TOTAL_OUTLAY_NT</font><BR>
-										<font color=\"blue\">結算 : NT$:TOTAL_SUM_NT</font>
-									</td>
-									
-								</tr>
-							</tfoot>
-						</table>
-					</div>
-					";
-				$recordHtml = '';
-				$total_income_nt_daily = 0;
-				$total_outlay_nt_daily = 0;
-				$tmpday = $temp['statistic_time'];
-			}
-			
-			if($temp['overhead_category'] == "收入")
-			{
-				$total_income_nt_daily += $nt;
-				$color = "green";
-			}
-			if($temp['overhead_category'] == "支出") 
-			{
-				$total_outlay_nt_daily += $nt;
-				$color = "red";
-			}
-				
-			$recordTmpHtml = "<tr>
-								<td><font color=\":COLOR\">:OVERHEAD_CATEGORY</font></td>
-								<td>:OVERHEAD_ITEM</td>
-								<td>:NT</td>
-							</tr>
-						   ";				
-			
-			$sourceStr = array(":OVERHEAD_CATEGORY", ":OVERHEAD_ITEM",":NT",":COLOR");
-			$replaceStr   = array($temp['overhead_category'],$temp['overhead_item'],$nt,$color);
-			$recordTmpHtml = str_replace($sourceStr,$replaceStr,$recordTmpHtml);
-			$recordHtml .= $recordTmpHtml;			
-			
-		}
-		
-		$sourceStr = array(":DATE", ":TOTAL_OUTLAY_NT",":RECORD",":TOTAL_INCOME_NT",":TOTAL_SUM_NT");
-		$replaceStr = array($tmpday,$total_outlay_nt_daily,$recordHtml,$total_income_nt_daily,$total_income_nt_daily-$total_outlay_nt_daily);
-		$html = str_replace($sourceStr,$replaceStr,$html);	
-		$htmlResult .= $html;
-		
-		
-		echo "<div class=\"table-wrapper\">						
-						<table>
-							<thead>
-								<tr>
-									<th>總支出</th>
-									<th>總收入</th>
-									<th>結算</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td><font color=\"green\">".$total_income_nt."</font></td>
-									<td><font color=\"red\">".$total_outlay_nt."</font></td>
-									<td><font color=\"blue\">".($total_income_nt-$total_outlay_nt)."</font></td>
-								</tr>				
-							</tbody>									
-						</table>
-					</div>";
-		echo $htmlResult;						
-	}
-	else
-	{
-		echo 'Error : '.$queryResult['MSG'];
-	}
-
-}
 
 ?>
