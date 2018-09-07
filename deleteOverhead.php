@@ -14,7 +14,7 @@ else
 	$result = json_encode(array("action"=> "delete", "success" => false ,"err"=>$delete_result["MSG"]));
 }
 
-header("location:index.php?result=".$result);
+header("location:".$_SERVER['HTTP_REFERER']."&result=".$result);
 
 
 ?>

@@ -48,6 +48,7 @@ else
 }
 
 
+
 if($overhead_summary == 'personal') $mode = "pnt";
 else $mode = "nt";
 	
@@ -353,13 +354,15 @@ function defineMenuList()
 	$menulist[$i]['image'] = "image/year.png";
 	$menulist[$i]['pageurl'] = "?slideno=".$i."#OptionMenu";
 	$i++;
-	$menulist[$i]['title'] = "項目排名";
+	/*$menulist[$i]['title'] = "項目排名";
 	$menulist[$i]['image'] = "image/ranking.png";
 	$menulist[$i]['pageurl'] = "?slideno=".$i."#OptionMenu";
 	$i++;
 	$menulist[$i]['title'] = "類型比例";
 	$menulist[$i]['image'] = "image/piechart.png";
 	$menulist[$i]['pageurl'] = "?slideno=".$i."#OptionMenu";
+	*/
+	
 	return $menulist;	
 }
 

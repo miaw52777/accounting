@@ -141,3 +141,16 @@ function statistic_checkbox_click()
 	location.href = "?" + param +"&year="+curYear +"&month="+curMonth + "#OptionMenu";
 }
 
+function deleteOverhead(guid) 
+{ 
+	if (confirm("確定要刪除?"))
+	{
+		location.href = "deleteOverhead.php?guid="+guid; 	
+	}
+}
+// 將資訊帶入編輯頁面
+function showOverhead(guid)
+{	
+	//location.href = "index.php?action=updateoverhead&guid="+guid; 
+	document.getElementById("editForm_"+guid).style.display = "";
+}

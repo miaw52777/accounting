@@ -7,7 +7,7 @@
 	*/
 	
 	
-	if($_GET['is_statistic'] == 'on') $rule .= getOverheadRecord_Select_Rule('IS_STATISTIC','T');
+	if($is_statistic == 'T') $rule .= getOverheadRecord_Select_Rule('IS_STATISTIC','T');
 	
 	if(isset($_GET['start_date']))
 	{
@@ -195,18 +195,28 @@
 										$color = "blue";
 									}
 										
-									$recordTmpHtml = "<tr>
-														<td><font color=\":COLOR\">:OVERHEAD_CATEGORY</font></td>
+									$recordTmpHtml = '<tr>
+														<td><font color=":COLOR">:OVERHEAD_CATEGORY</font></td>
 														<td>:OVERHEAD_ITEM</td>
-														<td>:NT</td>
+														<td>:NT
+														
+														<img src="./image/delete.png" id="img_overhead_delete" alt="刪除" title="刪除" onclick="deleteOverhead(\':GUID\');" width="32"> </img>
+														
+														<img src="./image/edit.png" id="img_overhead_edit" alt="編輯" title="編輯" onclick="showOverhead(\':GUID\');" width="30"> </img>
+														
+														<iframe src="showEditOVerheadForm.php?guid=:GUID" style="width:100%; '.$height_str.'overflow:hidden; border:none; margin:0; padding:0; overflow:hidden; z-index:999999; display:none" id="editForm_:GUID">
+														</iframe>
+														</td>
 													</tr>
-												   ";				
+												   ';		
+
+ 												
 									
 									if($temp['is_statistic'] == 'F') $item = $temp['overhead_item'].' <img src="./image/non_statistic.png" witdth="15" height="15" alt="不納入統計" title="不納入統計"></image>'; 
 									else $item = $temp['overhead_item'];
 									
-									$sourceStr = array(":OVERHEAD_CATEGORY", ":OVERHEAD_ITEM",":NT",":COLOR");
-									$replaceStr   = array($temp['overhead_category'],$item,$nt,$color);
+									$sourceStr = array(":OVERHEAD_CATEGORY", ":OVERHEAD_ITEM",":NT",":COLOR",":GUID");
+									$replaceStr   = array($temp['overhead_category'],$item,$nt,$color,$temp['guid']);
 									$recordTmpHtml = str_replace($sourceStr,$replaceStr,$recordTmpHtml);
 									$recordHtml .= $recordTmpHtml;			
 									
@@ -246,6 +256,7 @@
 						}
 					
 					?>
+					
 					
 					</div>
 				</div>

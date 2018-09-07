@@ -23,7 +23,9 @@ function generateOverheadForm($action, $paramArr)
 	$ITEM = $paramArr['ITEM'];	
 	$user_id = $paramArr['USER_ID'];	
 	
-	$htmlTemplate = '<header class="special"> <h2>:TITLE</h2></header>
+	$htmlTemplate = '';
+	if($TITLE != "") $htmlTemplate = '<header class="special"> <h2>:TITLE</h2></header>';
+	$htmlTemplate .= '
 				<form id=\'overheadForm\'>
 					<div>									
 						<img src="./image/overhead_time.png" id="img_overheadtime_title" height="30" width="30" alt="消費Date/time" title="消費Date/time : :OVERHEAD_DATE :OVERHEAD_TIME" onclick="show_overheadtime_text();"> </img>		

@@ -150,7 +150,7 @@ function sel_overhead_Item_change(value,overhead_item_Arr_Str)
 }
 
 function overhead_type_change(type, overhead_item_Arr_Str)
-{	
+{
    var user_id = document.getElementById("user_id").value;		   
    
    var listArr = overhead_item_Arr_Str.split(";");		
