@@ -17,6 +17,7 @@ $user_id = $_SESSION['user_id'];
 
 // 取得目前收入/支出/結算
 $querySummaryResult = SummaryTotalSettlement($user_id);
+//var_dump($querySummaryResult['SQL']);
 $SummarySettlement = getSQLResultInfo($querySummaryResult['DATA'], 'settlement');
 $SummaryIncome = getSQLResultInfo($querySummaryResult['DATA'], 'income');
 $SummaryOutlay = getSQLResultInfo($querySummaryResult['DATA'], 'outlay');

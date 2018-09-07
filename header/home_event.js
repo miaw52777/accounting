@@ -54,7 +54,7 @@ function editOverhead(guid)
 }
 function performUpdateOverhead(guid)
 {
-	var overhead_data = overheadParam();
+	var overhead_data = overheadParam();	
 	if(overhead_data != null)
 	{			
 		window.location.href = "updateOverhead.php?guid="+guid+"&data="+JSON.stringify(overhead_data);
@@ -91,6 +91,7 @@ function overheadParam()
 	overhead_data["overhead-date"] =  document.getElementById("overhead-date").value + " " + document.getElementById("overhead-time").value;
 	overhead_data["statistict_time"] =  document.getElementById("statistict_time").value;		
 	overhead_data["user_id"] =  document.getElementById("user_id").value;				
+	overhead_data["page"] =  document.getElementById("page").value;				
 	
 	if(Number.isInteger(Number(overhead_data["overheadDollar"])) == false)
 	{	
@@ -155,7 +156,7 @@ function overhead_type_change(type, overhead_item_Arr_Str)
    
    var listArr = overhead_item_Arr_Str.split(";");		
    
-   var sOption = " <option value=\"\"></option> ";
+   var sOption = " <option value=\"\">-Select-</option> ";
    
    for (l in listArr) // spec		
    {
@@ -165,7 +166,10 @@ function overhead_type_change(type, overhead_item_Arr_Str)
 	   
 	   if(arrtype == type)
 	   {
-		   sOption += " <option value=\""+arrname+"\">"+arrname+"</option> "; 		   
+		   if(arrname != "")
+		   {			   
+			 sOption += " <option value=\""+arrname+"\">"+arrname+"</option> "; 		   
+		   }
 	   }	   
    }		   
    document.getElementById("sel_overhead_Item").innerHTML = sOption;

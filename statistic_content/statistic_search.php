@@ -161,6 +161,7 @@
 															<th></th>
 															<th></th>
 															<th></th>
+															<th></th>
 														</tr>
 													</thead>
 													<tbody>
@@ -172,6 +173,7 @@
 															<td><font color=\"blue\">支出 : NT$:TOTAL_OUTLAY_NT</font><BR>
 																<font color=\"brown\">結算 : NT$:TOTAL_SUM_NT</font>
 															</td>
+															<td></td>
 															
 														</tr>
 													</tfoot>
@@ -198,14 +200,11 @@
 									$recordTmpHtml = '<tr>
 														<td><font color=":COLOR">:OVERHEAD_CATEGORY</font></td>
 														<td>:OVERHEAD_ITEM</td>
-														<td>:NT
-														
+														<td>:NT</td>
+														<td>
 														<img src="./image/delete.png" id="img_overhead_delete" alt="刪除" title="刪除" onclick="deleteOverhead(\':GUID\');" width="32"> </img>
 														
-														<img src="./image/edit.png" id="img_overhead_edit" alt="編輯" title="編輯" onclick="showOverhead(\':GUID\');" width="30"> </img>
-														
-														<iframe src="showEditOVerheadForm.php?guid=:GUID" style="width:100%; '.$height_str.'overflow:hidden; border:none; margin:0; padding:0; overflow:hidden; z-index:999999; display:none" id="editForm_:GUID">
-														</iframe>
+														<a href="showEditOVerheadForm.php?guid=:GUID&page='.base64_encode($_SERVER['REQUEST_URI'].'#OptionMenu').'"> <img src="./image/edit.png" id="img_overhead_edit" alt="編輯" title="編輯" onclick="showOverhead(\':GUID\');" width="30"> </img></a>
 														</td>
 													</tr>
 												   ';		
@@ -235,6 +234,7 @@
 															<th>總收入</th>
 															<th>總支出</th>
 															<th>結算</th>
+															<th></th>
 														</tr>
 													</thead>
 													<tbody>
@@ -242,6 +242,7 @@
 															<td><font color=\"green\">".$total_income_nt."</font></td>
 															<td><font color=\"blue\">".$total_outlay_nt."</font></td>
 															<td><font color=\"brown\">".($total_income_nt-$total_outlay_nt)."</font></td>
+															<td></td>
 														</tr>				
 													</tbody>									
 												</table>

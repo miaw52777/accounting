@@ -20,7 +20,7 @@ $user_id = $_SESSION['user_id'];
 
 <html>
 	<head>
-
+		<? require_once('./header/title.php');  ?>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />	
@@ -28,9 +28,17 @@ $user_id = $_SESSION['user_id'];
 	</head>
 	
 	<body class="is-preload">
+	  <? 
+			require_once('./header/topHeader.php'); 
+			echo printmenuList();
+		?>
+		
+	  <div id="heading" >
+			<h1>編輯消費項目</h1>
+	  </div> 	
 	  <section class="wrapper">
 				<div class="inner">			
-		
+				<input name="user_id" id="user_id" type="hidden" value="<? echo $user_id; ?>"/>				 
 				<? 				
 				
 					require_once('./overheadRecordForm.php'); 
@@ -40,6 +48,7 @@ $user_id = $_SESSION['user_id'];
 						$action = 'UPDATE';		
 						$paramArr['GUID'] = $_GET['guid'];		
 						$paramArr['TITLE'] = "";
+						$paramArr['PAGE'] = $_GET['page'];
 						
 						$rule = getOverheadRecord_Select_Rule('GUID',$paramArr['GUID']);				
 						$overhead_record_result = getOverheadRecord($user_id,$rule);
@@ -86,10 +95,13 @@ $user_id = $_SESSION['user_id'];
 					
 					
 		?>
-			
+		<button type="button" onclick="javascript:history.go(-1)">取消 </button>	
 	</div>
 	</section>
 			
+		<? 
+				require_once('./header/footer.php'); 						
+		?>	
 		<!-- Scripts -->		
 			
 			<script src="assets/js/jquery.min.js"></script>

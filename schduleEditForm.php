@@ -110,9 +110,9 @@ function generateOverheadForm($action, $paramArr)
 						{							
 							while($temp=mysqli_fetch_assoc($returnMsg['DATA']))
 							{
-								if($temp['type_name'] == $overhead_method) $is_select = "selected";
+								if($temp['name'] == $overhead_method) $is_select = "selected";
 								else $is_select = "";
-								$htmlTemplate .=  '<option value="'.$temp['type_name'].'" '.$is_select.'>'.$temp['type_name'].'</option>';
+								$htmlTemplate .=  '<option value="'.$temp['name'].'" '.$is_select.'>'.$temp['name'].'</option>';
 							}
 						}
 					

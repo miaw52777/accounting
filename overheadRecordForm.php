@@ -22,6 +22,7 @@ function generateOverheadForm($action, $paramArr)
 	$GUID = $paramArr['GUID'];	
 	$ITEM = $paramArr['ITEM'];	
 	$user_id = $paramArr['USER_ID'];	
+	$page = $paramArr['PAGE'];	
 	
 	$htmlTemplate = '';
 	if($TITLE != "") $htmlTemplate = '<header class="special"> <h2>:TITLE</h2></header>';
@@ -64,25 +65,38 @@ function generateOverheadForm($action, $paramArr)
 					<div class="row gtr-uniform">
 					 <div class="col-3">
 					 <select name="overhead_type" id="overhead_type" onchange="overhead_type_change(this.value, \':OPTION_STR\');"> ';
-					 
+					 // 食衣住行...
 						$overhead_item_list = getOverhead_Item_List($user_id);
 						$overhead_item_Arr_Str = "";								
 						$overhead_type_tmpArr = array();	
-						mysqli_data_seek($overhead_item_list['DATA'],0); // 移回第一筆資料	
-						while($temp=mysqli_fetch_assoc($overhead_item_list['DATA']))
-						{			
-							$overhead_item_Arr_Str .= $temp['type'].'@'.$temp['name'].'@'.$temp['is_necessary'].';';
-							if(!in_array($temp['type'],$overhead_type_tmpArr))
+						if($overhead_item_list['REC_CNT'] ==0)
+						{
+							$overhead_item_list_default = array("食","衣","住","行","育","樂","醫","他");
+							for($i=0;$i<count($overhead_item_list_default);$i++)
 							{
-								if($temp['type'] == $overhead_type_select) $is_select = 'selected';
-								else $is_select = '';
-								
-								$htmlTemplate .=  '<option value="'.$temp['type'].'" '.$is_select.' >'.$temp['type'].'</option>';
-								array_push($overhead_type_tmpArr,$temp['type']);
+								$tmp_type = $overhead_item_list_default[$i];	
+								$overhead_item_Arr_Str .= $tmp_type.'@@F;';		
+								$htmlTemplate .=  '<option value="'.$tmp_type.'" >'.$tmp_type.'</option>';
+								array_push($overhead_type_tmpArr,$tmp_type);
 							}
-						}		 
-					 
-					 
+						}
+						else
+						{
+							mysqli_data_seek($overhead_item_list['DATA'],0); // 移回第一筆資料	
+							while($temp=mysqli_fetch_assoc($overhead_item_list['DATA']))
+							{			
+								$overhead_item_Arr_Str .= $temp['type'].'@'.$temp['name'].'@'.$temp['is_necessary'].';';
+								if(!in_array($temp['type'],$overhead_type_tmpArr))
+								{
+									if($temp['type'] == $overhead_type_select) $is_select = 'selected';
+									else $is_select = '';
+									
+									$htmlTemplate .=  '<option value="'.$temp['type'].'" '.$is_select.' >'.$temp['type'].'</option>';
+									array_push($overhead_type_tmpArr,$temp['type']);
+								}
+							}		 
+						}
+						
 				$htmlTemplate .= '	 
 					</select>		
 					</div>
@@ -90,18 +104,22 @@ function generateOverheadForm($action, $paramArr)
 					 <select id="sel_overhead_Item" onchange = "sel_overhead_Item_change(this.value,\':OPTION_STR\');">
 						<option value="">-Select-</option>	';
 						
-							// 食衣住行...
-							mysqli_data_seek($overhead_item_list['DATA'],0); // 移回第一筆資料	
-							while($temp=mysqli_fetch_assoc($overhead_item_list['DATA']))
-							{					
-								if($overhead_type_select == "") $overhead_type_select = $overhead_type_tmpArr[0];
-								if($overhead_type_select == $temp['type'])
-								{
-									if($temp['name'] == $overhead_name_select) $is_select = 'selected';
-									else $is_select = '';
-									$htmlTemplate .=  '<option value="'.$temp['name'].'" '.$is_select.'>'.$temp['name'].'</option>';
+							// 食衣住行的項目...							
+							if($overhead_item_list['REC_CNT']>0)
+							{
+								mysqli_data_seek($overhead_item_list['DATA'],0); // 移回第一筆資料	
+								while($temp=mysqli_fetch_assoc($overhead_item_list['DATA']))
+								{					
+									if($overhead_type_select == "") $overhead_type_select = $overhead_type_tmpArr[0];
+									if($overhead_type_select == $temp['type'])
+									{
+										if($temp['name'] == $overhead_name_select) $is_select = 'selected';
+										else $is_select = '';
+										$htmlTemplate .=  '<option value="'.$temp['name'].'" '.$is_select.'>'.$temp['name'].'</option>';
+									}
 								}
 							}
+						
 					// 收入/支出	
 					$htmlTemplate .= '	</select>				 
 					 </div>
@@ -123,11 +141,18 @@ function generateOverheadForm($action, $paramArr)
 						}						
 						else						
 						{							
-							while($temp=mysqli_fetch_assoc($returnMsg['DATA']))
+							if($returnMsg['REC_CNT'] == 0)
 							{
-								if($temp['type_name'] == $overhead_method) $is_select = "selected";
-								else $is_select = "";
-								$htmlTemplate .=  '<option value="'.$temp['type_name'].'" '.$is_select.'>'.$temp['type_name'].'</option>';
+								$htmlTemplate .=  '<option value="現金">現金</option>';								
+							}
+							else
+							{
+								while($temp=mysqli_fetch_assoc($returnMsg['DATA']))
+								{
+									if($temp['name'] == $overhead_method) $is_select = "selected";
+									else $is_select = "";
+									$htmlTemplate .=  '<option value="'.$temp['name'].'" '.$is_select.'>'.$temp['name'].'</option>';
+								}
 							}
 						}
 					
@@ -150,11 +175,13 @@ function generateOverheadForm($action, $paramArr)
 						</div>
 						
 					</div>
+					
+					<input name="page" id="page" type="hidden" value=":PAGE"/>
 				</form>
 				';
 
-	$sourceStr = array(":TITLE", ":OVERHEAD_DATE",':OVERHEAD_TIME',':STATISTIC_TIME',":NT",":PNT",":OVERHEAD_CATEGORY_OUTLAY",":OVERHEAD_CATEGORY_INCOME",":IS_STATISTIC",":IS_NECESSARY",":MEMO",":GUID",":ITEM",":OPTION_STR");
-	$replaceStr   = array($TITLE,$OVERHEAD_DATE,$OVERHEAD_TIME,$STATISTIC_TIME,$NT,$PNT,$OVERHEAD_CATEGORY_OUTLAY,$OVERHEAD_CATEGORY_INCOME,$IS_STATISTIC,$IS_NECESSARY,$MEMO,$GUID,$ITEM,$overhead_item_Arr_Str);	
+	$sourceStr = array(":TITLE", ":OVERHEAD_DATE",':OVERHEAD_TIME',':STATISTIC_TIME',":NT",":PNT",":OVERHEAD_CATEGORY_OUTLAY",":OVERHEAD_CATEGORY_INCOME",":IS_STATISTIC",":IS_NECESSARY",":MEMO",":GUID",":ITEM",":OPTION_STR",":PAGE");
+	$replaceStr   = array($TITLE,$OVERHEAD_DATE,$OVERHEAD_TIME,$STATISTIC_TIME,$NT,$PNT,$OVERHEAD_CATEGORY_OUTLAY,$OVERHEAD_CATEGORY_INCOME,$IS_STATISTIC,$IS_NECESSARY,$MEMO,$GUID,$ITEM,$overhead_item_Arr_Str,$page);	
 				
 	$htmlTemplate = str_replace($sourceStr,$replaceStr,$htmlTemplate);
 	return $htmlTemplate;

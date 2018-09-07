@@ -5,7 +5,7 @@ function getOverheadMethod($user_id)
 {
 	include_once("conn.php");	
 	include_once("CommFunc.php");	
-	$querySQL = 'SELECT * FROM OverheadMethod where 1=1 and valid = "T" and user_id="'.$user_id.'"';	
+	$querySQL = 'SELECT * FROM overhead_account where 1=1 and valid = "T" and user_id="'.$user_id.'"';	
 	$returnMsg = QuerySQL($querySQL);		
 	return $returnMsg;
 }
@@ -15,7 +15,7 @@ function getOverhead_Item_List($user_id)
 {
 	include_once("conn.php");	
 	include_once("CommFunc.php");	
-	$querySQL = 'SELECT * FROM Overhead_Item_List where 1=1 and user_id=\''.$user_id.'\' order by seq';	
+	$querySQL = 'SELECT * FROM Overhead_Item_List where 1=1 and valid = "T" and user_id=\''.$user_id.'\' order by seq';	
 	
 	$returnMsg = QuerySQL($querySQL);		
 	return $returnMsg;	
@@ -209,22 +209,22 @@ function SummaryTotalSettlement($user_id)
 			FROM
 			(
 				select 
-				(
+				IFNULL((
 					SELECT sum(nt)  nt
 					FROM overhead_record
 					where 1=1
 						and overhead_category = '收入'
 						and user_id = '".$user_id."'
 						and is_statistic = 'T'
-				) income
-				,(
+				),0) income
+				,IFNULL((
 					SELECT sum(nt)  nt
 					FROM overhead_record
 					where 1=1
 						and overhead_category = '支出'
 						and user_id = '".$user_id."'
 						and is_statistic = 'T'
-				  ) outlay
+				  ),0) outlay
 				from dual  
 			)t
 			";

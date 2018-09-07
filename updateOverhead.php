@@ -4,7 +4,7 @@ include_once("function/CommFunc.php");
 include_once("function/OverheadFunc.php"); 
 
 //var_dump($_GET);
-//echo "<br>";echo "<br>";echo "<br>";echo "<br>";
+//echo "<br>";echo "<br>";echo "<br>";echo "<br>"; exit;
 $dataArray = json_decode($_GET['data'], true);
 
 
@@ -40,6 +40,14 @@ else
 	$result = json_encode(array("action"=> "updateResult", "success" => false ,"err"=>$insert_result["MSG"]));
 }
 
-header("location:index.php?result=".$result);
+$page = base64_decode($dataArray['page']);
 
+if($page == "")
+{
+	header("location:index.php?result=".$result);
+}
+else
+{
+	header("location:".$page);
+}
 ?>
