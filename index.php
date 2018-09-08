@@ -220,11 +220,10 @@ function printOverheadHistory($user_id,$overhead_type_radio)
 			$htmlTemplate = '<section>
 									<div class="content">
 										<blockquote>
-											<p>:ITEM <b>NT$ :NT </b>
+											<p>:ITEM <b>NT$ :NT </b>:IS_STATISTIC
 											<br>
-											<span style="font-size:10px;">-:OVERHEAD_METHOD</span>
-											<span style="font-size:10px;">-:IS_NECESSARY</span>
-											<span style="font-size:10px;">-:IS_STATISTIC</span><br>
+											<span style="font-size:10px;">-:OVERHEAD_METHOD</span><br>
+											<span style="font-size:10px;" hidden>-:IS_NECESSARY</span>									
 											<span style="font-size:10px;">備註 : :MEMO</span>											
 											</p>
 											<img src="./image/delete.png" id="img_overhead_delete" alt="刪除" title="刪除" onclick="delOverhead(\':GUID\');" class="right" width="32"> </img>
@@ -263,8 +262,9 @@ function printOverheadHistory($user_id,$overhead_type_radio)
 			
 			if($temp['is_necessary'] == 'T') $is_necessary = '必要';
 			else $is_necessary = '非必要';
-			if($temp['is_statistic'] == 'F') $is_statistic = '不納入統計';
-			else $is_statistic = '納入統計';
+			
+			if($temp['is_statistic'] == 'F') $is_statistic = '<img src="./image/non_statistic.png" witdth="15" height="15" alt="不納入統計" title="不納入統計"></image>';
+			
 			
 			$sourceStr = array(":ITEM", ":NT",':OVERHEAD_TIME',':STATISTIC_TIME',':GUID',":METHOD_IMAGE",":OVERHEAD_METHOD",":IS_NECESSARY", ":IS_STATISTIC",":MEMO");
 			$replaceStr   = array($temp['overhead_item'],$nt,$temp['rectime'],$temp['statistic_time'],$temp['guid'],$method_img,$temp['method'], $is_necessary,$is_statistic,$temp['Memo']);

@@ -124,16 +124,17 @@ function generateOverheadForm($action, $paramArr)
 					$htmlTemplate .= '	</select>				 
 					 </div>
 					 <div class="col-3">
-					 <select name="overhead_category" id = "overhead_category">
+					 <select name="overhead_category" id = "overhead_category" onchange="overhead_category_change();">
 						　<option value="支出" style="color:red" :OVERHEAD_CATEGORY_OUTLAY >支出</option>
 						　<option value="收入" style="color:green" :OVERHEAD_CATEGORY_INCOME > 收入</option>					
 					</select>
 					</div>
 					<div class="col-3">
-					 <select name="overhead_Method" id="overhead_Method"> ';
+					 <select name="overhead_Method" id="overhead_Method" onchange="overhead_method_change();"> ';
 					 
 						// 現金...
 						$returnMsg = getOverheadMethod($user_id);	
+						$overhead_category_option_Str = "";
 						
 						if(!$returnMsg['RESULT'])						
 						{							
@@ -143,6 +144,7 @@ function generateOverheadForm($action, $paramArr)
 						{							
 							if($returnMsg['REC_CNT'] == 0)
 							{
+								$overhead_category_option_Str .= "支出,收入@現金@@;"; //支出@現金@結帳日@繳費日
 								$htmlTemplate .=  '<option value="現金">現金</option>';								
 							}
 							else
@@ -151,7 +153,25 @@ function generateOverheadForm($action, $paramArr)
 								{
 									if($temp['name'] == $overhead_method) $is_select = "selected";
 									else $is_select = "";
-									$htmlTemplate .=  '<option value="'.$temp['name'].'" '.$is_select.'>'.$temp['name'].'</option>';
+									
+									$sel_category = "";
+									
+									if($OVERHEAD_CATEGORY_INCOME != '')
+									{
+										$sel_category = "收入";
+									}
+									else if($OVERHEAD_CATEGORY_OUTLAY != '')
+									{
+										$sel_category = "支出";
+									}
+									
+									if (strpos($temp['overhead_category'], $sel_category) !== false) 
+									{
+										$htmlTemplate .=  '<option value="'.$temp['name'].'" '.$is_select.'>'.$temp['name'].'</option>';
+									}
+									
+									$overhead_category_option_Str .= $temp['overhead_category']."@".$temp['name']."@".$temp['checkoutday']."@".$temp['paymentday'].";"; //支出@現金@結帳日@繳費日
+									
 								}
 							}
 						}
@@ -164,7 +184,7 @@ function generateOverheadForm($action, $paramArr)
 						<input type="checkbox" id="is_statistic" name="checkbox" :IS_STATISTIC>
 						<label for="is_statistic">此筆不納入統計</label>
 					</div>
-					<div class="col-6 col-12-small">
+					<div class="col-6 col-12-small" hidden >
 						<input type="checkbox" id="is_necessary" name="checkbox" :IS_NECESSARY>
 						<label for="is_necessary" >是否為必要花費</label>
 					</div>
@@ -177,11 +197,21 @@ function generateOverheadForm($action, $paramArr)
 					</div>
 					
 					<input name="page" id="page" type="hidden" value=":PAGE"/>
+					<input name="overhead_category_method_str" id="overhead_category_method_str" type="hidden" value=":OVERHEAD_OPTION_STR"/>
+					
 				</form>
 				';
+				if($action == 'NEW')	
+				{			
+					$htmlTemplate .= '<script> overhead_method_change(); </script>	';
+				}
 
-	$sourceStr = array(":TITLE", ":OVERHEAD_DATE",':OVERHEAD_TIME',':STATISTIC_TIME',":NT",":PNT",":OVERHEAD_CATEGORY_OUTLAY",":OVERHEAD_CATEGORY_INCOME",":IS_STATISTIC",":IS_NECESSARY",":MEMO",":GUID",":ITEM",":OPTION_STR",":PAGE");
-	$replaceStr   = array($TITLE,$OVERHEAD_DATE,$OVERHEAD_TIME,$STATISTIC_TIME,$NT,$PNT,$OVERHEAD_CATEGORY_OUTLAY,$OVERHEAD_CATEGORY_INCOME,$IS_STATISTIC,$IS_NECESSARY,$MEMO,$GUID,$ITEM,$overhead_item_Arr_Str,$page);	
+	$sourceStr = array(":TITLE", ":OVERHEAD_DATE",':OVERHEAD_TIME',':STATISTIC_TIME',":NT",":PNT",":OVERHEAD_CATEGORY_OUTLAY"
+						,":OVERHEAD_CATEGORY_INCOME",":IS_STATISTIC",":IS_NECESSARY",":MEMO",":GUID",":ITEM",":OPTION_STR"
+						,":PAGE",":OVERHEAD_OPTION_STR");
+	$replaceStr = array($TITLE,$OVERHEAD_DATE,$OVERHEAD_TIME,$STATISTIC_TIME,$NT,$PNT,$OVERHEAD_CATEGORY_OUTLAY
+						,$OVERHEAD_CATEGORY_INCOME,$IS_STATISTIC,$IS_NECESSARY,$MEMO,$GUID,$ITEM,$overhead_item_Arr_Str
+						,$page,$overhead_category_option_Str);	
 				
 	$htmlTemplate = str_replace($sourceStr,$replaceStr,$htmlTemplate);
 	return $htmlTemplate;

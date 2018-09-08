@@ -34,6 +34,7 @@ function overhead_time_change(selectTime)
 	var overhead_time = document.getElementById("overhead-time").value;
 	
 	document.getElementById("img_overheadtime_title").title="消費Date/time : " + overhead_date + " " + overhead_time;
+	overhead_method_change();
 }
 function statistict_time_change(selectTime)
 {	
@@ -203,6 +204,114 @@ function is_necessary_check(overhead_item_Arr_Str)
 	
 	
 }
+
+//根據收入/支出列出對應的消費方式
+function overhead_category_change()
+{
+   var option_Arr_Str = document.getElementById("overhead_category_method_str").value;			
+   var listArr = option_Arr_Str.split(";");		   
+   var sel_category = document.getElementById("overhead_category").value;	
+   var sOption = "";
+   
+   for (l in listArr) // spec		
+   {
+	   var tempArr = listArr[l].split("@");
+	   var arrcategory = tempArr[0]; //支出/收入
+	   var arrname = tempArr[1]; // 名稱	  
+	   var arrcheckoutday = tempArr[2]; // 結帳日
+	   var arrpaymentday = tempArr[3]; // 繳費日
+	   
+	   if(arrcategory.includes(sel_category))
+	   {
+		   if(arrname != "")
+		   {			   
+			 sOption += " <option value=\""+arrname+"\">"+arrname+"</option> "; 		   
+		   }
+	   }	   
+   }		   
+   document.getElementById("overhead_Method").innerHTML = sOption;
+	
+   overhead_method_change();
+}
+
+
+
+//根據選擇自動切換結帳日
+function overhead_method_change()
+{	
+   var option_Arr_Str = document.getElementById("overhead_category_method_str").value;		
+   var listArr = option_Arr_Str.split(";");		      
+   var sel_category = document.getElementById("overhead_category").value;	
+   var sel_method = document.getElementById("overhead_Method").value;	
+   var sOption = "";
+   
+   for (l in listArr) // spec		
+   {
+	   var tempArr = listArr[l].split("@");
+	   var arrcategory = tempArr[0]; //支出/收入
+	   var arrname = tempArr[1]; // 名稱	  
+	   var arrcheckoutday = tempArr[2]; // 結帳日
+	   var arrpaymentday = tempArr[3]; // 繳費日
+	   
+	   
+	   if(arrname == sel_method && sel_category != "收入" && arrcheckoutday != "" && arrpaymentday != "")
+	   {		   
+		   
+		   // auto select 統計時間		
+		   var overhead_date = document.getElementById("overhead-date").value; //現在消費時間		  
+		   var overhead_Arr = overhead_date.split("-"); //2018/08/01
+		   
+		   var overhead_year = Number(overhead_Arr[0]);
+		   var overhead_month = Number(overhead_Arr[1]);
+		   var overhead_day = Number(overhead_Arr[2]);
+		  		   
+		   var checkoutday = overhead_year + "-" + overhead_month + "-" + arrcheckoutday; // 當月結帳日
+		   var paymentday = document.getElementById("statistict_time").value; // default		   
+		   var shiftMonth = 0;
+		   var tmpcheckoutday = new Date(checkoutday);
+		   var tmpoverhead_date = new Date(overhead_date);
+		   
+		   //alert("overhead_date :" + overhead_date + ",checkoutday : " + checkoutday);
+		   if(tmpcheckoutday > tmpoverhead_date)
+		   {
+			   // 在當月結帳日之前歸給這期繳費日, ex : 結帳日:12號/繳費日01號, 9/1 消費就會歸給 10/1
+			   shiftMonth = 1;
+			   var tmpMonth = (overhead_month+shiftMonth) % 12;
+			   var tmpYear = overhead_year;
+			   
+			   if(overhead_month+shiftMonth > 12)  tmpYear = overhead_year + 1;			   
+			   if(tmpMonth == 0) tmpMonth = 12;			   
+			   
+		   }
+		   else
+		   {
+			   // 在當月結帳日之後歸給這期繳費日, ex : 結帳日:12號/繳費日01號, 9/13 消費就會歸給 11/1
+			   shiftMonth = 2;
+			   var tmpMonth = (overhead_month+shiftMonth) % 12;
+			   var tmpYear = overhead_year;
+			   if(overhead_month+shiftMonth > 12)  tmpYear = overhead_year + 1;			   
+			   if(tmpMonth == 0) tmpMonth = 12;			   
+		   }
+		   
+		   if(Number(tmpMonth) > 0 && Number(tmpMonth) < 10) // 0~9
+		   {
+			   tmpMonth = "0" + Number(tmpMonth);
+		   }
+		   
+		   if(Number(arrpaymentday) > 0 && Number(arrpaymentday) < 10) // 0~9
+		   {
+			   arrpaymentday = "0" + Number(arrpaymentday);
+		   }
+		   
+		   paymentday = tmpYear + "-" + tmpMonth + "-" + arrpaymentday;		   		   
+		   document.getElementById("statistict_time").value = paymentday;
+		   document.getElementById("statistict_time").style.display = "";
+		   document.getElementById("statistict_time").style.backgroundColor = "red";
+		
+	   }	
+   }	   
+}
+
 
 // initial page load
 var show_statistic_time = false;
