@@ -243,6 +243,7 @@ function overhead_method_change()
    var listArr = option_Arr_Str.split(";");		      
    var sel_category = document.getElementById("overhead_category").value;	
    var sel_method = document.getElementById("overhead_Method").value;	
+   var overhead_date = document.getElementById("overhead-date").value; //現在消費時間		  
    var sOption = "";
    
    for (l in listArr) // spec		
@@ -258,9 +259,8 @@ function overhead_method_change()
 	   {		   
 		   
 		   // auto select 統計時間		
-		   var overhead_date = document.getElementById("overhead-date").value; //現在消費時間		  
-		   var overhead_Arr = overhead_date.split("-"); //2018/08/01
 		   
+		   var overhead_Arr = overhead_date.split("-"); //2018/08/01		   
 		   var overhead_year = Number(overhead_Arr[0]);
 		   var overhead_month = Number(overhead_Arr[1]);
 		   var overhead_day = Number(overhead_Arr[2]);
@@ -306,9 +306,14 @@ function overhead_method_change()
 		   paymentday = tmpYear + "-" + tmpMonth + "-" + arrpaymentday;		   		   
 		   document.getElementById("statistict_time").value = paymentday;
 		   document.getElementById("statistict_time").style.display = "";
-		   document.getElementById("statistict_time").style.backgroundColor = "red";
-		
+		   document.getElementById("statistict_time").style.backgroundColor = "pink";
+		   break;
 	   }	
+	   else 
+	   {		   
+		   document.getElementById("statistict_time").value = overhead_date;
+		   document.getElementById("statistict_time").style.backgroundColor = "";
+	   }
    }	   
 }
 
