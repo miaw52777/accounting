@@ -265,20 +265,19 @@ function overhead_method_change()
 		   var overhead_month = Number(overhead_Arr[1]);
 		   var overhead_day = Number(overhead_Arr[2]);
 		  		   
-		   var checkoutday = overhead_year + "-" + overhead_month + "-" + arrcheckoutday; // 當月結帳日
+		   var checkoutday = overhead_year + "-" + overhead_Arr[1] + "-" + arrcheckoutday; // 當月結帳日
 		   var paymentday = document.getElementById("statistict_time").value; // default		   
 		   var shiftMonth = 0;
 		   var tmpcheckoutday = new Date(checkoutday);
 		   var tmpoverhead_date = new Date(overhead_date);
 		   
-		   //alert("overhead_date :" + overhead_date + ",checkoutday : " + checkoutday);
+		   //alert("overhead_date :" + tmpoverhead_date + ",checkoutday : " + tmpcheckoutday);
 		   if(tmpcheckoutday > tmpoverhead_date)
 		   {
 			   // 在當月結帳日之前歸給這期繳費日, ex : 結帳日:12號/繳費日01號, 9/1 消費就會歸給 10/1
 			   shiftMonth = 1;
 			   var tmpMonth = (overhead_month+shiftMonth) % 12;
-			   var tmpYear = overhead_year;
-			   
+			   var tmpYear = overhead_year;			   
 			   if(overhead_month+shiftMonth > 12)  tmpYear = overhead_year + 1;			   
 			   if(tmpMonth == 0) tmpMonth = 12;			   
 			   
@@ -287,7 +286,7 @@ function overhead_method_change()
 		   {
 			   // 在當月結帳日之後歸給這期繳費日, ex : 結帳日:12號/繳費日01號, 9/13 消費就會歸給 11/1
 			   shiftMonth = 2;
-			   var tmpMonth = (overhead_month+shiftMonth) % 12;
+			   var tmpMonth = (overhead_month+shiftMonth) % 12;			   
 			   var tmpYear = overhead_year;
 			   if(overhead_month+shiftMonth > 12)  tmpYear = overhead_year + 1;			   
 			   if(tmpMonth == 0) tmpMonth = 12;			   
@@ -304,6 +303,7 @@ function overhead_method_change()
 		   }
 		   
 		   paymentday = tmpYear + "-" + tmpMonth + "-" + arrpaymentday;		   		   
+		    
 		   document.getElementById("statistict_time").value = paymentday;
 		   document.getElementById("statistict_time").style.display = "";
 		   document.getElementById("statistict_time").style.backgroundColor = "pink";
