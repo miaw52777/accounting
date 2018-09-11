@@ -58,7 +58,7 @@ function getOverheadRawdata($user_id,$start_time,$end_time,$rule='')
 		
 	$querySQL =  overheadRawdataSQL($rule);	
 	
-	$querySQL .= ' order by statistic_time ';
+	$querySQL .= ' order by statistic_time desc, rectime ';
 		
 	$sourceStr = array(":USER_ID",":START_TIME", ":END_TIME");
 	$replaceStr = array($user_id,$start_time,$end_time);					
@@ -67,7 +67,25 @@ function getOverheadRawdata($user_id,$start_time,$end_time,$rule='')
 	$returnMsg = QuerySQL($querySQL);		
 	return $returnMsg;	
 }
-function overheadRawdataSQL($rule='')
+// 取得統計資料 Raw data(沒有時間限制)
+function getOverheadRawdataNoTime($user_id,$rule='')
+{
+	include_once("conn.php");	
+	include_once("CommFunc.php");	
+		
+	$querySQL =  overheadRawdataSQL($rule,'Y');	
+	
+	$querySQL .= ' order by statistic_time desc, rectime ';
+		
+	$sourceStr = array(":USER_ID");
+	$replaceStr = array($user_id);					
+	$querySQL = str_replace($sourceStr,$replaceStr,$querySQL);		
+	
+	$returnMsg = QuerySQL($querySQL);		
+	return $returnMsg;	
+}
+
+function overheadRawdataSQL($rule='', $IS_NO_TIME="N")
 {
 	$sql = "SELECT MONTH(statistic_time) month 
 					,WEEK(statistic_time) weekno 
@@ -75,11 +93,16 @@ function overheadRawdataSQL($rule='')
 					,t.*    
 					,DATE(rectime) overhead_date, time(rectime) overhead_time 
 				FROM overhead_record t 
-				where 1=1
-				   and t.statistic_time >= ':START_TIME' 
+				where 1=1 
+					   and t.user_id = ':USER_ID' 					   
+			";
+	if($IS_NO_TIME == 'N')
+	{ 
+		$sql .= "  and t.statistic_time >= ':START_TIME' 
 				   and t.statistic_time <= ':END_TIME' 
-				   and t.user_id = ':USER_ID' 
-			".$rule." ";
+				";
+	}
+	$sql .= ' '.$rule;
 	return $sql;
 }
 

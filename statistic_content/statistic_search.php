@@ -1,5 +1,5 @@
 ﻿<?
-	$rule = '';	
+	$rule_overhead_record = '';	
 	
 	
 	/*if($_GET['overhead_type_radio_p'] == 'on') $mode = "pnt";
@@ -7,7 +7,7 @@
 	*/
 	
 	
-	if($is_statistic == 'T') $rule .= getOverheadRecord_Select_Rule('IS_STATISTIC','T');
+	if($is_statistic == 'T') $rule_overhead_record .= getOverheadRecord_Select_Rule('IS_STATISTIC','T');
 	
 	if(isset($_GET['start_date']))
 	{
@@ -23,11 +23,11 @@
 	$memo = $_GET['memo'];
 	
 	
-	if($overhead_type != '' ) $rule .= getOverheadRecord_Select_Rule('OVERHEAD_TYPE',$overhead_type);
-	if($overhead_method != '' ) $rule .= getOverheadRecord_Select_Rule('METHOD',$overhead_method);
-	if($overhead_category != '' ) $rule .= getOverheadRecord_Select_Rule('OVERHEAD_CATEGORY',$overhead_category);
-	if($overhead_Item != '' ) $rule .= getOverheadRecord_Select_Rule('ITEM',$overhead_Item);
-	if($memo != '' ) $rule .= getOverheadRecord_Select_Rule('MEMO',$memo);
+	if($overhead_type != '' ) $rule_overhead_record .= getOverheadRecord_Select_Rule('OVERHEAD_TYPE',$overhead_type);
+	if($overhead_method != '' ) $rule_overhead_record .= getOverheadRecord_Select_Rule('METHOD',$overhead_method);
+	if($overhead_category != '' ) $rule_overhead_record .= getOverheadRecord_Select_Rule('OVERHEAD_CATEGORY',$overhead_category);
+	if($overhead_Item != '' ) $rule_overhead_record .= getOverheadRecord_Select_Rule('ITEM',$overhead_Item);
+	if($memo != '' ) $rule_overhead_record .= getOverheadRecord_Select_Rule('MEMO',$memo);
 
 ?>
 	<section id="main" class="wrapper" name="main">
@@ -74,7 +74,8 @@
 									<select name="overhead_type" id = "overhead_type">
 										<option value="" >-類型-</option>　
 										<?
-											$overhead_type_result = getOverhead_Item_List_Type($user_id);
+											$rule = getOverhead_Item_List_Select_Rule("VALID","T");
+											$overhead_type_result = getOverhead_Item_List_Type($user_id, $rule);
 											while($temp=mysqli_fetch_assoc($overhead_type_result['DATA']))
 											{				
 												if($overhead_type == $temp['type']) $is_select = "selected";
@@ -90,7 +91,8 @@
 									<select name="overhead_method" id = "overhead_method">
 										<option value="" >-帳戶-</option>　
 										<?
-											$accout_list = getOverhead_Account_Name($user_id);
+											$rule = getOverhead_Account_Select_Rule("VALID","T");
+											$accout_list = getOverhead_Account_Name($user_id, $rule);
 											while($temp=mysqli_fetch_assoc($accout_list['DATA']))
 											{		
 												if($overhead_method == $temp['name']) $is_select = "selected";
@@ -121,12 +123,10 @@
 						
 					
 					
-					
-					
 					<?						
 						if(isset($_GET['start_date']))
 						{
-							$queryResult = getOverheadRawdata($user_id,$start_time,$end_time,$rule);
+							$queryResult = getOverheadRawdata($user_id,$start_time,$end_time,$rule_overhead_record);
 							//var_dump($queryResult['SQL']);
 
 							/*********** Start to print search data **********************/
@@ -162,6 +162,7 @@
 															<th></th>
 															<th></th>
 															<th></th>
+															<th></th>
 														</tr>
 													</thead>
 													<tbody>
@@ -173,6 +174,7 @@
 															<td><font color=\"blue\">支出 : NT$:TOTAL_OUTLAY_NT</font><BR>
 																<font color=\"brown\">結算 : NT$:TOTAL_SUM_NT</font>
 															</td>
+															<td></td>
 															<td></td>
 															
 														</tr>
@@ -201,6 +203,7 @@
 														<td><font color=":COLOR">:OVERHEAD_CATEGORY</font></td>
 														<td>:OVERHEAD_ITEM</td>
 														<td>:NT</td>
+														<td>:RECTIME</td>
 														<td>
 														<img src="./image/delete.png" id="img_overhead_delete" alt="刪除" title="刪除" onclick="deleteOverhead(\':GUID\');" width="32"> </img>
 														
@@ -214,8 +217,8 @@
 									if($temp['is_statistic'] == 'F') $item = $temp['overhead_item'].' <img src="./image/non_statistic.png" witdth="15" height="15" alt="不納入統計" title="不納入統計"></image>'; 
 									else $item = $temp['overhead_item'];
 									
-									$sourceStr = array(":OVERHEAD_CATEGORY", ":OVERHEAD_ITEM",":NT",":COLOR",":GUID");
-									$replaceStr   = array($temp['overhead_category'],$item,$nt,$color,$temp['guid']);
+									$sourceStr = array(":OVERHEAD_CATEGORY", ":OVERHEAD_ITEM",":NT",":COLOR",":GUID",":RECTIME");
+									$replaceStr   = array($temp['overhead_category'],$item,$nt,$color,$temp['guid'],$temp['rectime']);
 									$recordTmpHtml = str_replace($sourceStr,$replaceStr,$recordTmpHtml);
 									$recordHtml .= $recordTmpHtml;			
 									

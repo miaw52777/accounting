@@ -51,8 +51,8 @@ function generateOverheadForm($action, $paramArr)
 						
 						<div class="col-4 col-12-xsmall">
 							<select name="overhead_type" id="overhead_type" onchange="overhead_type_change(this.value, \':OPTION_STR\');"> ';
-					 
-						$overhead_item_list = getOverhead_Item_List($user_id);
+						$rule = getOverhead_Item_List_Select_Rule("VALID","T");
+						$overhead_item_list = getOverhead_Item_List($user_id,$rule);
 						$overhead_item_Arr_Str = "";								
 						$overhead_type_tmpArr = array();	
 						mysqli_data_seek($overhead_item_list['DATA'],0); // 移回第一筆資料	
@@ -100,7 +100,8 @@ function generateOverheadForm($action, $paramArr)
 					 <select name="overhead_Method" id="overhead_Method"> ';
 					 
 						
-						$returnMsg = getOverheadMethod($user_id);	
+						$rule = getOverhead_Account_Select_Rule("VALID","T");
+						$returnMsg = getOverhead_Account($user_id,$rule);	
 						
 						if(!$returnMsg['RESULT'])						
 						{							

@@ -251,7 +251,8 @@ $SummaryOutlay = getSQLResultInfo($querySummaryResult['DATA'], 'outlay');
 			<section class="wrapper">
 				<div class="inner">
 					<header class="special">
-						<h2>Show Statistic Chart</h2>						<div id ="OptionMenu"> </div>
+						<h2>Show Statistic Chart</h2>						
+						<div id ="OptionMenu"> </div>
 						<p>
 						user : <? echo $user_id; ?><br>
 						帳戶總計 : <? echo $SummarySettlement; ?>
@@ -279,7 +280,7 @@ $SummaryOutlay = getSQLResultInfo($querySummaryResult['DATA'], 'outlay');
 							<div class="col-4 col-12-small">
 								<input type="radio" id="overhead_type_radio_p" name="overhead_type_radio_p" onclick="radioOverheadtypeSelect('personal');"  <? echo $checked_personal; ?> >
 								<label for="overhead_type_radio_p">個人開銷</label>
-								</div>
+							</div>
 							<div class="col-4 col-12-xsmall">
 								<input type="radio" id="overhead_type_radio_all" name="overhead_type_radio_all" onclick="radioOverheadtypeSelect('overall');" <? echo $checked_overall; ?> >
 								<label for="overhead_type_radio_all">全部開銷</label>

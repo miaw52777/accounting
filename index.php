@@ -264,6 +264,7 @@ function printOverheadHistory($user_id,$overhead_type_radio)
 			else $is_necessary = '非必要';
 			
 			if($temp['is_statistic'] == 'F') $is_statistic = '<img src="./image/non_statistic.png" witdth="15" height="15" alt="不納入統計" title="不納入統計"></image>';
+			else $is_statistic = '';
 			
 			
 			$sourceStr = array(":ITEM", ":NT",':OVERHEAD_TIME',':STATISTIC_TIME',':GUID',":METHOD_IMAGE",":OVERHEAD_METHOD",":IS_NECESSARY", ":IS_STATISTIC",":MEMO");

@@ -63,10 +63,11 @@ function generateOverheadForm($action, $paramArr)
 					 
 				$htmlTemplate .= '
 					<div class="row gtr-uniform">
-					 <div class="col-3">
+					 <div class="col-6">
 					 <select name="overhead_type" id="overhead_type" onchange="overhead_type_change(this.value, \':OPTION_STR\');"> ';
 					 // 食衣住行...
-						$overhead_item_list = getOverhead_Item_List($user_id);
+						$rule = getOverhead_Item_List_Select_Rule("VALID","T");
+						$overhead_item_list = getOverhead_Item_List($user_id,$rule);
 						$overhead_item_Arr_Str = "";								
 						$overhead_type_tmpArr = array();	
 						if($overhead_item_list['REC_CNT'] ==0)
@@ -100,7 +101,7 @@ function generateOverheadForm($action, $paramArr)
 				$htmlTemplate .= '	 
 					</select>		
 					</div>
-					<div class="col-3">
+					<div class="col-6">
 					 <select id="sel_overhead_Item" onchange = "sel_overhead_Item_change(this.value,\':OPTION_STR\');">
 						<option value="">-Select-</option>	';
 						
@@ -123,17 +124,21 @@ function generateOverheadForm($action, $paramArr)
 					// 收入/支出	
 					$htmlTemplate .= '	</select>				 
 					 </div>
-					 <div class="col-3">
+					 </div>
+					 <br>
+					 <div class="row gtr-uniform">
+					 <div class="col-6">
 					 <select name="overhead_category" id = "overhead_category" onchange="overhead_category_change();">
 						　<option value="支出" style="color:red" :OVERHEAD_CATEGORY_OUTLAY >支出</option>
 						　<option value="收入" style="color:green" :OVERHEAD_CATEGORY_INCOME > 收入</option>					
 					</select>
 					</div>
-					<div class="col-3">
+					<div class="col-6">
 					 <select name="overhead_Method" id="overhead_Method" onchange="overhead_method_change();"> ';
 					 
 						// 現金...
-						$returnMsg = getOverheadMethod($user_id);	
+						$rule = getOverhead_Account_Select_Rule("VALID","T");
+						$returnMsg = getOverhead_Account($user_id,'nt',$rule);	
 						$overhead_category_option_Str = "";
 						
 						if(!$returnMsg['RESULT'])						

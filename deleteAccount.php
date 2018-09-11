@@ -2,8 +2,9 @@
 include_once("function/CommFunc.php");
 include_once("function/OverheadFunc.php"); 
 
-$guid = $_GET["guid"];
-$delete_result = deleteOverheadRecord($guid);
+
+$account_id = $_GET["account_id"];
+$delete_result = deleteAccount($account_id);
 
 if(delete_result)
 {
@@ -13,6 +14,7 @@ else
 {
 	$result = json_encode(array("action"=> "delete", "success" => false ,"err"=>$delete_result["MSG"]));
 }
+
 
 if (strpos($_SERVER['HTTP_REFERER'], ".php?") !== false)
 {

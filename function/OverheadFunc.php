@@ -1,37 +1,195 @@
 ﻿<?
 
-// 取得開銷方式(現金)
-function getOverheadMethod($user_id)
+/********************  Account Start *****************************/
+// 取得 帳戶資訊 查詢條件
+function getOverhead_Account_Select_Rule($col, $value)
+{	
+	$rule = "";
+	if($printLog == 'T')
+	{
+		echo 'col='.strtoupper($col).'<br>';
+		echo 'value='.$value.'<br>';
+	}
+	
+	
+	if($value=='%') 
+	{
+		$rule = '';
+	}
+	else
+	{
+		if(strtoupper($col)  == "VALID")
+		{
+			$rule = sprintf(' and valid = %s ',GetSqlValueString($value,'text'));			
+		}
+		else if(strtoupper($col)  == "NAME")
+		{
+			$rule = sprintf(' and name = %s ',GetSqlValueString($value,'text'));			
+		}
+		else if(strtoupper($col)  == "TYPE")
+		{
+			$rule = sprintf(' and type = %s ',GetSqlValueString($value,'text'));			
+		}
+		else if(strtoupper($col)  == "IS_STATISTIC")
+		{
+			$rule = sprintf(' and is_statistic = %s ',GetSqlValueString($value,'text'));			
+		}
+	}
+	
+	if($printLog == 'T')
+	{
+		echo 'rule='.$rule.'<br>';
+	}
+	return $rule;
+
+}
+
+// 取得帳戶資訊
+function getOverhead_Account($user_id,$mode, $rule='')
 {
 	include_once("conn.php");	
 	include_once("CommFunc.php");	
-	$querySQL = 'SELECT * FROM overhead_account where 1=1 and valid = "T" and user_id="'.$user_id.'"';	
+	
+	if($mode == '') $mode = 'nt';
+	$querySQL = 'SELECT t.* 
+						,IFNULL((select sum((case when z.overhead_category = "支出" then -1*:MODE else :MODE end)  ) pnt from overhead_record z where 1=1 and z.user_id = t.user_id and z.method = t.name),0) nt_overhead
+						,IFNULL(
+								(select sum((case when z.overhead_category = "支出" then -1*:MODE else :MODE end)  ) nt 
+								 from overhead_record z 
+								 where 1=1 
+									and z.user_id = t.user_id
+									and z.method = t.name
+									and z.statistic_time like (SELECT DATE_FORMAT(max(a.statistic_time),"%Y-%m%") max_time
+																FROM overhead_record a 
+																WHERE 1=1
+																	and a.user_id = z.user_id
+																	and a.method = z.method)
+								),0
+						) nt_overhead_last_month   
+				FROM overhead_account t 
+				where 1=1 				
+					and user_id="'.$user_id.'" 
+					'.$rule.'
+				order by seq
+				';	
+				
+	$querySQL = str_replace(":MODE",$mode,$querySQL);	
+				
 	$returnMsg = QuerySQL($querySQL);		
 	return $returnMsg;
 }
 
-//取得 default 開銷項目
-function getOverhead_Item_List($user_id)
+//取得銷帳戶資訊-Name
+function getOverhead_Account_Name($user_id, $rule='')
 {
 	include_once("conn.php");	
 	include_once("CommFunc.php");	
-	$querySQL = 'SELECT * FROM Overhead_Item_List where 1=1 and valid = "T" and user_id=\''.$user_id.'\' order by seq';	
+	$querySQL = 'SELECT distinct name 
+				FROM overhead_account 
+				where 1=1 
+					and user_id=\''.$user_id.'\' 
+					'.$rule.'
+				order by seq
+				';	
 	
+	$returnMsg = QuerySQL($querySQL);		
+	return $returnMsg;	
+}
+
+// 刪除帳戶資訊
+function deleteAccount($account_id)
+{
+	$sql = "delete from overhead_account where 1=1 and account_id = '$account_id'";
+	echo $sql.'<br>';
+	
+	include_once("conn.php");	
+	include_once("CommFunc.php");	
+	
+	$returnMsg = ExecuteSQL($sql);		
+	
+	return $returnMsg;	
+}
+
+
+
+
+/********************  Account End *****************************/
+
+/********************  Overhead Item Start *****************************/
+// 取得 開銷項目 查詢條件
+function getOverhead_Item_List_Select_Rule($col, $value)
+{	
+	$rule = "";
+	if($printLog == 'T')
+	{
+		echo 'col='.strtoupper($col).'<br>';
+		echo 'value='.$value.'<br>';
+	}
+	
+	
+	if($value=='%') 
+	{
+		$rule = '';
+	}
+	else
+	{
+		if(strtoupper($col)  == "VALID")
+		{
+			$rule = sprintf(' and valid = %s ',GetSqlValueString($value,'text'));			
+		}
+		else if(strtoupper($col)  == "NAME")
+		{
+			$rule = sprintf(' and name = %s ',GetSqlValueString($value,'text'));			
+		}
+		else if(strtoupper($col)  == "TYPE")
+		{
+			$rule = sprintf(' and type = %s ',GetSqlValueString($value,'text'));			
+		}		
+	}
+	
+	if($printLog == 'T')
+	{
+		echo 'rule='.$rule.'<br>';
+	}
+	return $rule;
+
+}
+//取得 default 開銷項目
+function getOverhead_Item_List($user_id, $rule='')
+{
+	include_once("conn.php");	
+	include_once("CommFunc.php");		
+	$querySQL = 'SELECT * 
+				FROM Overhead_Item_List 
+				where 1=1 				
+					and user_id="'.$user_id.'" 
+					'.$rule.'
+				order by seq
+				';	
 	$returnMsg = QuerySQL($querySQL);		
 	return $returnMsg;	
 }
 
 //取得 default 開銷項目所有 TYPE(食衣住行...)
-function getOverhead_Item_List_Type($user_id)
+function getOverhead_Item_List_Type($user_id, $rule='')
 {
 	include_once("conn.php");	
-	include_once("CommFunc.php");	
-	$querySQL = 'SELECT distinct type FROM Overhead_Item_List where 1=1 and user_id=\''.$user_id.'\' order by seq';	
+	include_once("CommFunc.php");		
 	
+	$querySQL = 'SELECT distinct type 
+				FROM Overhead_Item_List 
+				where 1=1 				
+					and user_id="'.$user_id.'" 
+					'.$rule.'
+				order by seq
+				';	
 	$returnMsg = QuerySQL($querySQL);		
 	return $returnMsg;	
 }
 
+/********************  Overhead Item End *****************************/
+
+/********************  Overhead Record Start *****************************/
 // 取得 OverheadRecord 查詢條件
 function getOverheadRecord_Select_Rule($col, $value)
 {	
@@ -55,27 +213,27 @@ function getOverheadRecord_Select_Rule($col, $value)
 		}
 		else if(strtoupper($col)  == "IS_STATISTIC")
 		{
-			$rule = sprintf(' and IS_STATISTIC = %s ',GetSqlValueString($value,'text'));			
+			$rule = sprintf(' and is_statistic = %s ',GetSqlValueString($value,'text'));			
 		}		
 		elseif(strtoupper($col) == 'IS_NECESSARY')
 		{
-			$rule = sprintf(' and IS_NECESSARY = %s ',GetSqlValueString($value,'text'));			
+			$rule = sprintf(' and is_necessary = %s ',GetSqlValueString($value,'text'));			
 		}		
 		elseif(strtoupper($col) == 'OVERHEAD_TYPE')
 		{
-			$rule = sprintf('and OVERHEAD_TYPE = %s',GetSqlValueString($value,'text'));
+			$rule = sprintf('and overhead_type = %s',GetSqlValueString($value,'text'));
 		}
 		elseif(strtoupper($col)  == "OVERHEAD_CATEGORY")
 		{
-			$rule = sprintf(' and OVERHEAD_CATEGORY = %s ',GetSqlValueString($value,'text'));			
+			$rule = sprintf(' and overhead_category = %s ',GetSqlValueString($value,'text'));			
 		}	
 		elseif(strtoupper($col)  == "METHOD")
 		{
-			$rule = sprintf(' and METHOD = %s ',GetSqlValueString($value,'text'));			
+			$rule = sprintf(' and method = %s ',GetSqlValueString($value,'text'));			
 		}
 		elseif(strtoupper($col)  == "MEMO")
 		{
-			$rule = sprintf(' and MEMO like %s ',GetSqlValueString($value,'text'));			
+			$rule = sprintf(' and memo like %s ',GetSqlValueString($value,'text'));			
 		}	
 		elseif(strtoupper($col)  == "ITEM")
 		{
@@ -174,32 +332,9 @@ function deleteOverheadRecord($guid)
 	return $returnMsg;	
 }
 
+/********************  Overhead Record End *****************************/
 
-
-
-//取得銷帳戶資訊
-function getOverhead_Account_Info($user_id)
-{
-	include_once("conn.php");	
-	include_once("CommFunc.php");	
-	$querySQL = 'SELECT * FROM overhead_account where 1=1 and user_id=\''.$user_id.'\' order by seq';	
-	
-	$returnMsg = QuerySQL($querySQL);		
-	return $returnMsg;	
-}
-
-//取得銷帳戶資訊-Name
-function getOverhead_Account_Name($user_id)
-{
-	include_once("conn.php");	
-	include_once("CommFunc.php");	
-	$querySQL = 'SELECT distinct name FROM overhead_account where 1=1 and user_id=\''.$user_id.'\' order by seq';	
-	
-	$returnMsg = QuerySQL($querySQL);		
-	return $returnMsg;	
-}
-
-
+/********************  Overhead Summary Start *****************************/
 // 目前所有支出/收入/結算
 function SummaryTotalSettlement($user_id)
 {
@@ -218,7 +353,7 @@ function SummaryTotalSettlement($user_id)
 						and is_statistic = 'T'
 				),0) income
 				,IFNULL((
-					SELECT sum(nt)  nt
+					SELECT sum(pnt)  nt
 					FROM overhead_record
 					where 1=1
 						and overhead_category = '支出'
@@ -232,7 +367,7 @@ function SummaryTotalSettlement($user_id)
 	return $returnMsg;	
 }
 
-
+/********************  Overhead Summary End *****************************/
 
 
 
