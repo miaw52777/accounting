@@ -13,6 +13,7 @@ function generateOverheadForm($action, $paramArr)
 	$PNT = $paramArr['PNT'];
 	$OVERHEAD_CATEGORY_OUTLAY = $paramArr['OVERHEAD_CATEGORY_OUTLAY'];
 	$OVERHEAD_CATEGORY_INCOME = $paramArr['OVERHEAD_CATEGORY_INCOME'];
+	$OVERHEAD_CATEGORY_XFER = $paramArr['OVERHEAD_CATEGORY_XFER'];
 	$IS_STATISTIC = $paramArr['IS_STATISTIC'];
 	$IS_NECESSARY = $paramArr['IS_NECESSARY'];
 	$MEMO = $paramArr['MEMO'];
@@ -44,93 +45,103 @@ function generateOverheadForm($action, $paramArr)
 				$htmlTemplate .= '<img src="./image/edit.png" id="img_overhead_add" height="30" width="30" alt="修改" title="修改" onclick="performUpdateOverhead(\':GUID\');"> </img>';
 			}
 			
-			$htmlTemplate .= '
+			$htmlTemplate .= '</div>';
 					
-					</div>
-					
+					$htmlTemplate .= '
 					<div class="row gtr-uniform">
-						<div class="col-4 col-12-xsmall">
-							<input name="overhead_Item" id="overhead_Item" type="text" size="10" placeholder="* 項目" Autofocus="on" required value=":ITEM" />
-						</div>		
-						<div class="col-4 col-12-xsmall">
-							<input name="overheadDollar" id="overheadDollar" type="text" size="10" onchange="checkIsNum(this);" placeholder="* 開銷總額 NT$" required value= ":NT"/>
+						 <div class="col-4">							
+								 <select name="overhead_type" id="overhead_type" onchange="overhead_type_change(this.value, \':OPTION_STR\');"> 
+								 :OVERHEADTYPE_HTML
+								</select>							
 						</div>	
-						<div class="col-4 col-12-xsmall">	
-							<input name="PersonalDollar" id="PersonalDollar" type="text" size="10" placeholder="個人開銷金額 PNT$" onchange="checkIsNum(this);" value= ":PNT"/>
-							 <br>
-						 </div>
-					 </div>';
-					 
-				$htmlTemplate .= '
+						<div class="col-4 col-12-xsmall">					 							 
+								 <select id="sel_overhead_Item" onchange = "sel_overhead_Item_change(this.value,\':OPTION_STR\');">
+								  <option value="">-Select-</option>	
+									:OVERHEAD_ITEM_HTML									 
+								</select>  
+						</div>
+						<div class="col-4 col-12-xsmall">
+								<input name="overhead_Item" id="overhead_Item" type="text" size="10" placeholder="* 項目" Autofocus="on" required value=":ITEM" />
+						 
+						</div>						
+					</div>	
+					
+					<br>
+					
 					<div class="row gtr-uniform">
-					 <div class="col-6">
-					 <select name="overhead_type" id="overhead_type" onchange="overhead_type_change(this.value, \':OPTION_STR\');"> ';
+							<div class="col-6 col-12-xsmall">						 
+								<input name="overheadDollar" id="overheadDollar" type="text" size="10" onchange="checkIsNum(this);" placeholder="* 開銷總額 NT$" required value= ":NT"/>
+							</div> 
+							<div class="col-6 col-12-xsmall">	
+								<input name="PersonalDollar" id="PersonalDollar" type="text" size="10" placeholder="個人開銷金額 PNT$" onchange="checkIsNum(this);" value= ":PNT"/>
+								 <br>
+							 </div>
+					 </div>
+					 ';
+					 
+				 
+			 
 					 // 食衣住行...
-						$rule = getOverhead_Item_List_Select_Rule("VALID","T");
-						$overhead_item_list = getOverhead_Item_List($user_id,$rule);
-						$overhead_item_Arr_Str = "";								
-						$overhead_type_tmpArr = array();	
-						if($overhead_item_list['REC_CNT'] ==0)
+					$rule = getOverhead_Item_List_Select_Rule("VALID","T");
+					$overhead_item_list = getOverhead_Item_List($user_id,$rule);
+					$overhead_item_Arr_Str = "";		
+					$overheadTypeHtml = "";
+					$overhead_type_tmpArr = array();	
+					if($overhead_item_list['REC_CNT'] ==0)
+					{
+						$overhead_item_list_default = array("食","衣","住","行","育","樂","醫","他");
+						for($i=0;$i<count($overhead_item_list_default);$i++)
 						{
-							$overhead_item_list_default = array("食","衣","住","行","育","樂","醫","他");
-							for($i=0;$i<count($overhead_item_list_default);$i++)
-							{
-								$tmp_type = $overhead_item_list_default[$i];	
-								$overhead_item_Arr_Str .= $tmp_type.'@@F;';		
-								$htmlTemplate .=  '<option value="'.$tmp_type.'" >'.$tmp_type.'</option>';
-								array_push($overhead_type_tmpArr,$tmp_type);
-							}
+							$tmp_type = $overhead_item_list_default[$i];	
+							$overhead_item_Arr_Str .= $tmp_type.'@@F;';		
+							$overheadTypeHtml .=  '<option value="'.$tmp_type.'" >'.$tmp_type.'</option>';
+							array_push($overhead_type_tmpArr,$tmp_type);
 						}
-						else
+					}
+					else
+					{
+						mysqli_data_seek($overhead_item_list['DATA'],0); // 移回第一筆資料	
+						while($temp=mysqli_fetch_assoc($overhead_item_list['DATA']))
+						{			
+							$overhead_item_Arr_Str .= $temp['type'].'@'.$temp['name'].'@'.$temp['is_necessary'].';';
+							if(!in_array($temp['type'],$overhead_type_tmpArr))
+							{
+								if($temp['type'] == $overhead_type_select) $is_select = 'selected';
+								else $is_select = '';
+								
+								$overheadTypeHtml .=  '<option value="'.$temp['type'].'" '.$is_select.' >'.$temp['type'].'</option>'.CHR(13).CHR(10);
+								array_push($overhead_type_tmpArr,$temp['type']);
+							}
+						}		 
+					}
+					
+					$overheadItemHtml = "";
+						// 食衣住行的項目...							
+						if($overhead_item_list['REC_CNT']>0)
 						{
 							mysqli_data_seek($overhead_item_list['DATA'],0); // 移回第一筆資料	
 							while($temp=mysqli_fetch_assoc($overhead_item_list['DATA']))
-							{			
-								$overhead_item_Arr_Str .= $temp['type'].'@'.$temp['name'].'@'.$temp['is_necessary'].';';
-								if(!in_array($temp['type'],$overhead_type_tmpArr))
+							{					
+								if($overhead_type_select == "") $overhead_type_select = $overhead_type_tmpArr[0];
+								if($overhead_type_select == $temp['type'])
 								{
-									if($temp['type'] == $overhead_type_select) $is_select = 'selected';
+									if($temp['name'] == $overhead_name_select) $is_select = 'selected';
 									else $is_select = '';
-									
-									$htmlTemplate .=  '<option value="'.$temp['type'].'" '.$is_select.' >'.$temp['type'].'</option>';
-									array_push($overhead_type_tmpArr,$temp['type']);
-								}
-							}		 
-						}
-						
-				$htmlTemplate .= '	 
-					</select>		
-					</div>
-					<div class="col-6">
-					 <select id="sel_overhead_Item" onchange = "sel_overhead_Item_change(this.value,\':OPTION_STR\');">
-						<option value="">-Select-</option>	';
-						
-							// 食衣住行的項目...							
-							if($overhead_item_list['REC_CNT']>0)
-							{
-								mysqli_data_seek($overhead_item_list['DATA'],0); // 移回第一筆資料	
-								while($temp=mysqli_fetch_assoc($overhead_item_list['DATA']))
-								{					
-									if($overhead_type_select == "") $overhead_type_select = $overhead_type_tmpArr[0];
-									if($overhead_type_select == $temp['type'])
-									{
-										if($temp['name'] == $overhead_name_select) $is_select = 'selected';
-										else $is_select = '';
-										$htmlTemplate .=  '<option value="'.$temp['name'].'" '.$is_select.'>'.$temp['name'].'</option>';
-									}
+									$overheadItemHtml .=  '<option value="'.$temp['name'].'" '.$is_select.'>'.$temp['name'].'</option>'.CHR(13).CHR(10);
 								}
 							}
+						}
 						
 					// 收入/支出	
-					$htmlTemplate .= '	</select>				 
-					 </div>
-					 </div>
-					 <br>
+					$htmlTemplate .= '	 			 
+				 
+					 
 					 <div class="row gtr-uniform">
 					 <div class="col-6">
 					 <select name="overhead_category" id = "overhead_category" onchange="overhead_category_change();">
-						　<option value="支出" style="color:red" :OVERHEAD_CATEGORY_OUTLAY >支出</option>
-						　<option value="收入" style="color:green" :OVERHEAD_CATEGORY_INCOME > 收入</option>					
+						　<option value="支出" style="color:blue" :OVERHEAD_CATEGORY_OUTLAY >支出</option>
+						　<option value="收入" style="color:green" :OVERHEAD_CATEGORY_INCOME > 收入</option>
+						<option value="轉帳" style="color:purple" :OVERHEAD_CATEGORY_XFER > 轉帳</option>		
 					</select>
 					</div>
 					<div class="col-6">
@@ -149,7 +160,7 @@ function generateOverheadForm($action, $paramArr)
 						{							
 							if($returnMsg['REC_CNT'] == 0)
 							{
-								$overhead_category_option_Str .= "支出,收入@現金@@;"; //支出@現金@結帳日@繳費日
+								$overhead_category_option_Str .= "支出,收入,轉帳@現金@@;"; //支出@現金@結帳日@繳費日
 								$htmlTemplate .=  '<option value="現金">現金</option>';								
 							}
 							else
@@ -175,7 +186,16 @@ function generateOverheadForm($action, $paramArr)
 										$htmlTemplate .=  '<option value="'.$temp['name'].'" '.$is_select.'>'.$temp['name'].'</option>';
 									}
 									
-									$overhead_category_option_Str .= $temp['overhead_category']."@".$temp['name']."@".$temp['checkoutday']."@".$temp['paymentday'].";"; //支出@現金@結帳日@繳費日
+									$tmp_overhea_category = $temp['overhead_category'];
+									if(!strpos($tmp_overhea_category, '轉帳') !== false)
+									{
+										//不存在，判斷是否為銀行，如果是自動新增
+										if($temp['type'] == "銀行")
+										{
+											$tmp_overhea_category = ',轉帳';
+										}
+									}
+									$overhead_category_option_Str .= $tmp_overhea_category."@".$temp['name']."@".$temp['checkoutday']."@".$temp['paymentday'].";"; //支出@現金@結帳日@繳費日
 									
 								}
 							}
@@ -213,10 +233,12 @@ function generateOverheadForm($action, $paramArr)
 
 	$sourceStr = array(":TITLE", ":OVERHEAD_DATE",':OVERHEAD_TIME',':STATISTIC_TIME',":NT",":PNT",":OVERHEAD_CATEGORY_OUTLAY"
 						,":OVERHEAD_CATEGORY_INCOME",":IS_STATISTIC",":IS_NECESSARY",":MEMO",":GUID",":ITEM",":OPTION_STR"
-						,":PAGE",":OVERHEAD_OPTION_STR");
+						,":PAGE",":OVERHEAD_OPTION_STR",":OVERHEAD_CATEGORY_XFER"
+						,":OVERHEAD_ITEM_HTML",":OVERHEADTYPE_HTML");
 	$replaceStr = array($TITLE,$OVERHEAD_DATE,$OVERHEAD_TIME,$STATISTIC_TIME,$NT,$PNT,$OVERHEAD_CATEGORY_OUTLAY
 						,$OVERHEAD_CATEGORY_INCOME,$IS_STATISTIC,$IS_NECESSARY,$MEMO,$GUID,$ITEM,$overhead_item_Arr_Str
-						,$page,$overhead_category_option_Str);	
+						,$page,$overhead_category_option_Str,$OVERHEAD_CATEGORY_XFER
+						,$overheadItemHtml,$overheadTypeHtml);	
 				
 	$htmlTemplate = str_replace($sourceStr,$replaceStr,$htmlTemplate);
 	return $htmlTemplate;

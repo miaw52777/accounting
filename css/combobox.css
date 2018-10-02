@@ -1,0 +1,14 @@
+.select-editable
+{
+	position: relative;	
+ 
+}
+.select-editable select {position: absolute; width: 100%; }  
+.select-editable input {position: absolute;  width: 85%; }  
+
+.input-text
+{
+	position: relative;	
+ 
+}
+.input-text input {position: absolute;  width: 85%; }  

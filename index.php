@@ -31,7 +31,7 @@ $SummaryOutlay = getSQLResultInfo($querySummaryResult['DATA'], 'outlay');
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<meta name="description" content="" />
 		<meta name="keywords" content="" />
-		<link rel="stylesheet" href="assets/css/main.css" />	
+		<link rel="stylesheet" href="assets/css/main.css" />			
 		<script src="header/home_event.js" type="text/javascript"></script>	
 	</head>
 	
@@ -81,13 +81,23 @@ $SummaryOutlay = getSQLResultInfo($querySummaryResult['DATA'], 'outlay');
 							if($overhead_category == "支出")
 							{
 								$paramArr['OVERHEAD_CATEGORY_OUTLAY'] = "SELECTED";
+								$paramArr['OVERHEAD_CATEGORY_XFER'] = "";
 								$paramArr['OVERHEAD_CATEGORY_INCOME'] = "";
 							}
+							else if($overhead_category == "轉帳")
+							{
+								$paramArr['OVERHEAD_CATEGORY_OUTLAY'] = "";
+								$paramArr['OVERHEAD_CATEGORY_XFER'] = "SELECTED";
+								$paramArr['OVERHEAD_CATEGORY_INCOME'] = "";
+							} 
 							else
 							{
 								$paramArr['OVERHEAD_CATEGORY_OUTLAY'] = "";
+								$paramArr['OVERHEAD_CATEGORY_XFER'] = "";
 								$paramArr['OVERHEAD_CATEGORY_INCOME'] = "SELECTED";
 							}
+							
+							
 							if(getSQLResultInfo($overhead_record_result['DATA'],'is_statistic') == "F") $paramArr['IS_STATISTIC'] = "CHECKED";			
 							else $paramArr['IS_STATISTIC'] = "";
 							
@@ -189,8 +199,7 @@ $SummaryOutlay = getSQLResultInfo($querySummaryResult['DATA'], 'outlay');
 			?>
 
 				 
-		<!-- Scripts -->		
-			
+		<!-- Scripts -->				
 			<script src="assets/js/jquery.min.js"></script>
 			<script src="assets/js/browser.min.js"></script>
 			<script src="assets/js/breakpoints.min.js"></script>

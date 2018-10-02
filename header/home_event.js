@@ -146,7 +146,7 @@ function radioOverheadtypeSelect(overheadtype)
 	window.location.href = "?user_id="+user_id+"&overhead_type_radio=" + overheadtype;
 }
 function sel_overhead_Item_change(value,overhead_item_Arr_Str)
-{
+{	
 	document.getElementById("overhead_Item").value = value;	
 	is_necessary_check(overhead_item_Arr_Str);
 }
@@ -321,5 +321,3 @@ function overhead_method_change()
 // initial page load
 var show_statistic_time = false;
 var show_overhead_time = false;
-
- 
