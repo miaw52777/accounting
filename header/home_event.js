@@ -157,6 +157,34 @@ function checkIsNum(sobject)
 	else{sobject.style.backgroundColor = "";}
 	
 }
+function overhead_Item_text_change(overhead_item_Arr_Str)
+{	
+	
+	var name = document.getElementById("overhead_Item").value;	
+	var listArr = overhead_item_Arr_Str.split(";");			
+	
+	for (l in listArr) // spec		
+    {
+	   var tempArr = listArr[l].split("@");
+	   var arrtype = tempArr[0];	   
+	   var arrname = tempArr[1];	  
+	   var arrIsNecessary = tempArr[2];	
+	   
+	   if(arrname == name)
+	   {		   
+		   document.getElementById("overhead_type").value = arrtype;
+		   overhead_type_change(arrtype, overhead_item_Arr_Str);
+		   document.getElementById("sel_overhead_Item").value = name;	
+		   sel_overhead_Item_change(name,overhead_item_Arr_Str);
+		   break;
+	   }	   
+	   else 
+	   {
+		   document.getElementById("overhead_type").value = "其他";
+	   }
+    }
+	
+}
 
 function radioOverheadtypeSelect(overheadtype)
 {		

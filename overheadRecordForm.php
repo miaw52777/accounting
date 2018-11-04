@@ -62,7 +62,7 @@ function generateOverheadForm($action, $paramArr)
 								</select>  
 						</div>
 						<div class="col-4 col-12-xsmall">
-								<input name="overhead_Item" id="overhead_Item" type="text" size="10" placeholder="* 項目" Autofocus="on" required value=":ITEM" />
+								<input name="overhead_Item" id="overhead_Item" type="text" size="10" placeholder="* 項目" Autofocus="on" required value=":ITEM" onchange = "overhead_Item_text_change(\':OPTION_STR\')"/>
 						 
 						</div>						
 					</div>	
