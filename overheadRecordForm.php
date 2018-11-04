@@ -18,6 +18,7 @@ function generateOverheadForm($action, $paramArr)
 	$IS_NECESSARY = $paramArr['IS_NECESSARY'];
 	$MEMO = $paramArr['MEMO'];
 	$overhead_method = $paramArr['OVERHEAD_METHOD'];
+	$overhead_xfer_to = $paramArr['OVERHEAD_XFER_TO'];
 	$overhead_name_select = $paramArr['OVERHEAD_NAME'];
 	$overhead_type_select = $paramArr['OVERHEAD_TYPE'];
 	$GUID = $paramArr['GUID'];	
@@ -132,26 +133,52 @@ function generateOverheadForm($action, $paramArr)
 							}
 						}
 						
+						$sel_category = "";		
+						$show_xfer_option = "";
+						if($OVERHEAD_CATEGORY_INCOME != '')
+						{
+							$sel_category = "收入";
+							$show_xfer_option = "none";
+						}
+						else if($OVERHEAD_CATEGORY_OUTLAY != '')
+						{
+							$sel_category = "支出";
+							$show_xfer_option = "none";
+						}
+						else 
+						{
+							$sel_category = "轉帳";
+							$show_xfer_option = "";
+						}
+						
 					// 收入/支出	
-					$htmlTemplate .= '	 			 
-				 
-					 
+					$htmlTemplate .= '	 			
 					 <div class="row gtr-uniform">
-					 <div class="col-6">
+					 <div class="col-4">
 					 <select name="overhead_category" id = "overhead_category" onchange="overhead_category_change();">
 						　<option value="支出" style="color:blue" :OVERHEAD_CATEGORY_OUTLAY >支出</option>
 						　<option value="收入" style="color:green" :OVERHEAD_CATEGORY_INCOME > 收入</option>
 						<option value="轉帳" style="color:purple" :OVERHEAD_CATEGORY_XFER > 轉帳</option>		
 					</select>
-					</div>
-					<div class="col-6">
-					 <select name="overhead_Method" id="overhead_Method" onchange="overhead_method_change();"> ';
+					</div>					 
+					<div class="col-4">
+					 <select name="overhead_Method" id="overhead_Method" onchange="overhead_method_change();"> 
+						:OVERHEAD_CATEGORY_OPTION_HTML
+					 </select>	
+					 </div>
+					 <div class="col-4">
+					 <select name="overhead_xfer_to" id="overhead_xfer_to" onchange="overhead_method_change();" style="display:'.$show_xfer_option.'"> 
+						:OVERHEAD_XFER_OPTION_HTML
+					 </select>	
+					 </div>
+					 ';
 					 
 						// 現金...
 						$rule = getOverhead_Account_Select_Rule("VALID","T");
 						$returnMsg = getOverhead_Account($user_id,'nt',$rule);	
 						$overhead_category_option_Str = "";
-						
+						$overhead_category_option_Html = "";
+						$overhead_Xfer_option_Html = "";
 						if(!$returnMsg['RESULT'])						
 						{							
 							echo $returnMsg['MSG'];						
@@ -161,7 +188,7 @@ function generateOverheadForm($action, $paramArr)
 							if($returnMsg['REC_CNT'] == 0)
 							{
 								$overhead_category_option_Str .= "支出,收入,轉帳@現金@@;"; //支出@現金@結帳日@繳費日
-								$htmlTemplate .=  '<option value="現金">現金</option>';								
+								$overhead_category_option_Html .=  '<option value="現金">現金</option>';								
 							}
 							else
 							{
@@ -170,40 +197,39 @@ function generateOverheadForm($action, $paramArr)
 									if($temp['name'] == $overhead_method) $is_select = "selected";
 									else $is_select = "";
 									
-									$sel_category = "";
+									if($temp['name'] == $overhead_xfer_to) $is_select_xfer = "selected";
+									else $is_select_xfer = "";
+																	
 									
-									if($OVERHEAD_CATEGORY_INCOME != '')
-									{
-										$sel_category = "收入";
-									}
-									else if($OVERHEAD_CATEGORY_OUTLAY != '')
-									{
-										$sel_category = "支出";
-									}
-									
-									if (strpos($temp['overhead_category'], $sel_category) !== false) 
-									{
-										$htmlTemplate .=  '<option value="'.$temp['name'].'" '.$is_select.'>'.$temp['name'].'</option>';
-									}
-									
-									$tmp_overhea_category = $temp['overhead_category'];
-									if(!strpos($tmp_overhea_category, '轉帳') !== false)
+									$tmp_overhead_category = $temp['overhead_category'];
+									if(!strpos($tmp_overhead_category, '轉帳') !== false)
 									{
 										//不存在，判斷是否為銀行，如果是自動新增
 										if($temp['type'] == "銀行")
 										{
-											$tmp_overhea_category = ',轉帳';
+											$tmp_overhead_category .= ',轉帳';
 										}
 									}
-									$overhead_category_option_Str .= $tmp_overhea_category."@".$temp['name']."@".$temp['checkoutday']."@".$temp['paymentday'].";"; //支出@現金@結帳日@繳費日
+									
+									//echo $temp['name'].'  '.$tmp_overhead_category.'  '.$sel_category.'<br>';
+									
+									if (strpos($tmp_overhead_category, $sel_category) !== false) 
+									{
+										$overhead_category_option_Html .=  '<option value="'.$temp['name'].'" '.$is_select.'>'.$temp['name'].'</option>'.CHR(13).CHR(10);
+										$overhead_Xfer_option_Html .=  '<option value="'.$temp['name'].'" '.$is_select_xfer.'>'.$temp['name'].'</option>'.CHR(13).CHR(10);
+									}
+									
+								 
+									
+									
+									$overhead_category_option_Str .= $tmp_overhead_category."@".$temp['name']."@".$temp['checkoutday']."@".$temp['paymentday'].";"; //支出@現金@結帳日@繳費日
 									
 								}
 							}
 						}
 					
 					 
-					 $htmlTemplate .= '</select>	
-					 </div>
+					 $htmlTemplate .= '
 					 
 					<div class="col-6 col-12-small">
 						<input type="checkbox" id="is_statistic" name="checkbox" :IS_STATISTIC>
@@ -234,11 +260,13 @@ function generateOverheadForm($action, $paramArr)
 	$sourceStr = array(":TITLE", ":OVERHEAD_DATE",':OVERHEAD_TIME',':STATISTIC_TIME',":NT",":PNT",":OVERHEAD_CATEGORY_OUTLAY"
 						,":OVERHEAD_CATEGORY_INCOME",":IS_STATISTIC",":IS_NECESSARY",":MEMO",":GUID",":ITEM",":OPTION_STR"
 						,":PAGE",":OVERHEAD_OPTION_STR",":OVERHEAD_CATEGORY_XFER"
-						,":OVERHEAD_ITEM_HTML",":OVERHEADTYPE_HTML");
+						,":OVERHEAD_ITEM_HTML",":OVERHEADTYPE_HTML",":OVERHEAD_CATEGORY_OPTION_HTML"
+						,":OVERHEAD_XFER_OPTION_HTML");
 	$replaceStr = array($TITLE,$OVERHEAD_DATE,$OVERHEAD_TIME,$STATISTIC_TIME,$NT,$PNT,$OVERHEAD_CATEGORY_OUTLAY
 						,$OVERHEAD_CATEGORY_INCOME,$IS_STATISTIC,$IS_NECESSARY,$MEMO,$GUID,$ITEM,$overhead_item_Arr_Str
 						,$page,$overhead_category_option_Str,$OVERHEAD_CATEGORY_XFER
-						,$overheadItemHtml,$overheadTypeHtml);	
+						,$overheadItemHtml,$overheadTypeHtml,$overhead_category_option_Html
+						,$overhead_Xfer_option_Html);	
 				
 	$htmlTemplate = str_replace($sourceStr,$replaceStr,$htmlTemplate);
 	return $htmlTemplate;

@@ -52,20 +52,39 @@ function getOverhead_Account($user_id,$mode, $rule='')
 	
 	if($mode == '') $mode = 'nt';
 	$querySQL = 'SELECT t.* 
-						,IFNULL((select sum((case when z.overhead_category = "支出" then -1*:MODE else :MODE end)  ) pnt from overhead_record z where 1=1 and z.user_id = t.user_id and z.method = t.name),0) nt_overhead
+						,IFNULL((select sum(case when z.method = t.name and z.overhead_category = "支出" then -1*:MODE  /*支出*/
+                                                  when z.method = t.name and z.overhead_category = "收入" then :MODE    /*收入*/
+                                                  when z.overhead_category = "轉帳" and z.method=t.name then -1*:MODE  /*轉出*/
+                                                  when z.overhead_category = "轉帳" and z.overhead_xfer_to=t.name then :MODE /*轉入*/
+                                                  else 0 end
+                                            ) pnt 
+                                 from overhead_record z 
+								 where 1=1
+										and z.user_id = t.user_id 
+										and (z.method = t.name  or (z.overhead_category = "轉帳" and z.overhead_xfer_to = t.name))
+								),0)                       
+                        nt_overhead
 						,IFNULL(
-								(select sum((case when z.overhead_category = "支出" then -1*:MODE else :MODE end)  ) nt 
+								(select                                  
+                                 sum((case when z.method = t.name and z.overhead_category = "支出" then -1*:MODE  /*支出*/
+                                      	   when z.method = t.name and z.overhead_category = "收入" then :MODE     /*收入*/
+                                      	   when z.overhead_category = "轉帳" and z.method=t.name then -1*:MODE  /*轉出*/
+                                      	   when z.overhead_category = "轉帳" and z.overhead_xfer_to=t.name then :MODE /*轉入*/
+                                      else 0 end)  ) 
+                                 nt 
 								 from overhead_record z 
 								 where 1=1 
-									and z.user_id = t.user_id
-									and z.method = t.name
+									and z.user_id = t.user_id			
+									and (z.method = t.name  or z.overhead_xfer_to = t.name)	
 									and z.statistic_time like (SELECT DATE_FORMAT(max(a.statistic_time),"%Y-%m%") max_time
 																FROM overhead_record a 
 																WHERE 1=1
 																	and a.user_id = z.user_id
-																	and a.method = z.method)
+																	and a.method = z.method
+																	and (a.method = t.name  or (a.overhead_category = "轉帳" and a.overhead_xfer_to = t.name))
+															   )
 								),0
-						) nt_overhead_last_month   
+						) nt_overhead_last_month      
 				FROM overhead_account t 
 				where 1=1 				
 					and user_id="'.$user_id.'" 
@@ -270,12 +289,12 @@ function getOverheadRecord($user_id,$rule = '', $limit=50)
 
 
 //新增開銷項目
-function newOverhead($guid,$user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo,$statistic_time,$rectime)
+function newOverhead($guid,$user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo,$statistic_time,$rectime,$overhead_xfer_to)
 {
-	$sql = "INSERT INTO overhead_record (guid, user_id, is_statistic,is_necessary, overhead_type, overhead_category, overhead_item, method, nt, pnt, Memo, statistic_time, rectime) 
-			VALUES (':GUID',':USER_ID', ':IS_STATISTIC', ':IS_NECESSARY',':TYPE', ':CATEGORY', ':ITEM', ':METHOD', ':TOTAL_NT', ':PERSONAL_NT', ':MEMO', ':STATISTIC_TIME', ':RECTIME')";
-		$sourceStr = array(":GUID",":USER_ID", ":IS_STATISTIC",":IS_NECESSARY",':TYPE', ':CATEGORY', ':ITEM', ':METHOD', ':TOTAL_NT', ':PERSONAL_NT', ':MEMO', ':STATISTIC_TIME', ':RECTIME');
-		$replaceStr = array($guid,$user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo,$statistic_time, $rectime);	
+	$sql = "INSERT INTO overhead_record (guid, user_id, is_statistic,is_necessary, overhead_type, overhead_category, overhead_item, method, nt, pnt, Memo, statistic_time, rectime, overhead_xfer_to) 
+			VALUES (':GUID',':USER_ID', ':IS_STATISTIC', ':IS_NECESSARY',':TYPE', ':CATEGORY', ':ITEM', ':METHOD', ':TOTAL_NT', ':PERSONAL_NT', ':MEMO', ':STATISTIC_TIME', ':RECTIME', ':OVERHEAD_XFER_TO')";
+		$sourceStr = array(":GUID",":USER_ID", ":IS_STATISTIC",":IS_NECESSARY",':TYPE', ':CATEGORY', ':ITEM', ':METHOD', ':TOTAL_NT', ':PERSONAL_NT', ':MEMO', ':STATISTIC_TIME', ':RECTIME', ":OVERHEAD_XFER_TO");
+		$replaceStr = array($guid,$user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo,$statistic_time, $rectime,$overhead_xfer_to);	
 	
 	$sql = str_replace($sourceStr,$replaceStr,$sql);	
 
@@ -288,7 +307,7 @@ function newOverhead($guid,$user_id,$is_statistic,$is_necessary,$type,$category,
 }
 
 //修改開銷內容
-function updateOverhead($guid,$user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo,$statistic_time,$rectime)
+function updateOverhead($guid,$user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo,$statistic_time,$rectime, $overhead_xfer_to)
 {
 	$sql = "update overhead_record 
 			set user_id=':USER_ID', 
@@ -302,12 +321,13 @@ function updateOverhead($guid,$user_id,$is_statistic,$is_necessary,$type,$catego
 				pnt=':PERSONAL_NT', 
 				memo=':MEMO',
 				statistic_time=':STATISTIC_TIME',
-				rectime=':RECTIME'
+				rectime=':RECTIME',
+				overhead_xfer_to=':OVERHEAD_XFER_TO'
 			where 1=1
 				and guid=':GUID'
 			";
-		$sourceStr = array(":GUID",":USER_ID", ":IS_STATISTIC",":IS_NECESSARY",':TYPE', ':CATEGORY', ':ITEM', ':METHOD', ':TOTAL_NT', ':PERSONAL_NT', ':MEMO', ':STATISTIC_TIME', ':RECTIME');
-		$replaceStr = array($guid,$user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo,$statistic_time, $rectime);	
+		$sourceStr = array(":GUID",":USER_ID", ":IS_STATISTIC",":IS_NECESSARY",':TYPE', ':CATEGORY', ':ITEM', ':METHOD', ':TOTAL_NT', ':PERSONAL_NT', ':MEMO', ':STATISTIC_TIME', ':RECTIME', ':OVERHEAD_XFER_TO');
+		$replaceStr = array($guid,$user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo,$statistic_time, $rectime,$overhead_xfer_to);	
 	
 	$sql = str_replace($sourceStr,$replaceStr,$sql);	
 
@@ -345,7 +365,7 @@ function SummaryTotalSettlement($user_id)
 			(
 				select 
 				IFNULL((
-					SELECT sum(nt)  nt
+					SELECT sum(pnt)  nt
 					FROM overhead_record
 					where 1=1
 						and overhead_category = '收入'

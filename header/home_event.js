@@ -93,6 +93,7 @@ function overheadParam()
 	overhead_data["statistict_time"] =  document.getElementById("statistict_time").value;		
 	overhead_data["user_id"] =  document.getElementById("user_id").value;				
 	overhead_data["page"] =  document.getElementById("page").value;				
+	overhead_data["overhead_xfer_to"] =  document.getElementById("overhead_xfer_to").value;
 	
 	if(Number.isInteger(Number(overhead_data["overheadDollar"])) == false)
 	{	
@@ -111,12 +112,29 @@ function overheadParam()
 		alert("項目不可為空!!");
 		return null;
 	}
+	else document.getElementById("overhead_Item").style.backgroundColor = "";		
+	
+	if(document.getElementById("overhead_category").value == "轉帳")
+	{
+		if(document.getElementById("overhead_Method").value == document.getElementById("overhead_xfer_to").value)
+		{
+			document.getElementById("overhead_Method").style.backgroundColor = "red";		
+			document.getElementById("overhead_xfer_to").style.backgroundColor = "red";		
+			alert("轉入與轉出帳戶不可相同!!");
+			return null;			
+		}			
+	}
+	else 
+	{
+		document.getElementById("overhead_Method").style.backgroundColor = "";		
+		document.getElementById("overhead_xfer_to").style.backgroundColor = "";	
+	}
 	if(overhead_data["overheadDollar"] == "")
 	{
 		document.getElementById("overheadDollar").style.backgroundColor = "red";		
 		alert("開銷總額不可為空!!");
 		return null;
-	}
+	}	
 	else 
 	{
 		return overhead_data;
@@ -216,7 +234,7 @@ function overhead_category_change()
    for (l in listArr) // spec		
    {
 	   var tempArr = listArr[l].split("@");
-	   var arrcategory = tempArr[0]; //支出/收入
+	   var arrcategory = tempArr[0]; //支出/收入/轉帳
 	   var arrname = tempArr[1]; // 名稱	  
 	   var arrcheckoutday = tempArr[2]; // 結帳日
 	   var arrpaymentday = tempArr[3]; // 繳費日
@@ -229,8 +247,17 @@ function overhead_category_change()
 		   }
 	   }	   
    }		   
-   document.getElementById("overhead_Method").innerHTML = sOption;
-	
+   document.getElementById("overhead_Method").innerHTML = sOption;   
+   document.getElementById("overhead_xfer_to").innerHTML = sOption;
+   if(sel_category != "轉帳")
+   {
+	  document.getElementById("overhead_xfer_to").style.display = "none";	
+   }
+   else 
+   {
+	   document.getElementById("overhead_xfer_to").style.display = "";	
+   }
+    	
    overhead_method_change();
 }
 

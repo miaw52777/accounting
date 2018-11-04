@@ -17,11 +17,14 @@ $type = $dataArray['overhead_type'];
 $category = $dataArray['overhead_category'];
 $item = $dataArray['overhead_Item'];
 $method = $dataArray['overhead_Method'];
+$overhead_xfer_to = $dataArray['overhead_xfer_to'];
 $total_nt = $dataArray['overheadDollar'];
 $personal_nt = $dataArray['PersonalDollar'];
 $memo = $dataArray['memo'];
 $rectime =  $dataArray['overhead-date'];
 $statistict_time = $dataArray['statistict_time'];
+
+
 if($personal_nt == "")
 {
 	$personal_nt = $total_nt;
@@ -30,7 +33,7 @@ $user_id = $dataArray['user_id'];
 
 $guid = guid();
 
-$insert_result = newOverhead($guid, $user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo, $statistict_time,$rectime);
+$insert_result = newOverhead($guid, $user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo, $statistict_time,$rectime,$overhead_xfer_to);
 
 if($insert_result == "")
 {

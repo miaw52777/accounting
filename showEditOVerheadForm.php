@@ -65,11 +65,19 @@ $user_id = $_SESSION['user_id'];
 							if($overhead_category == "支出")
 							{
 								$paramArr['OVERHEAD_CATEGORY_OUTLAY'] = "SELECTED";
+								$paramArr['OVERHEAD_CATEGORY_XFER'] = "";
 								$paramArr['OVERHEAD_CATEGORY_INCOME'] = "";
 							}
+							else if($overhead_category == "轉帳")
+							{
+								$paramArr['OVERHEAD_CATEGORY_OUTLAY'] = "";
+								$paramArr['OVERHEAD_CATEGORY_XFER'] = "SELECTED";
+								$paramArr['OVERHEAD_CATEGORY_INCOME'] = "";
+							} 
 							else
 							{
 								$paramArr['OVERHEAD_CATEGORY_OUTLAY'] = "";
+								$paramArr['OVERHEAD_CATEGORY_XFER'] = "";
 								$paramArr['OVERHEAD_CATEGORY_INCOME'] = "SELECTED";
 							}
 							if(getSQLResultInfo($overhead_record_result['DATA'],'is_statistic') == "F") $paramArr['IS_STATISTIC'] = "CHECKED";			
@@ -83,6 +91,7 @@ $user_id = $_SESSION['user_id'];
 							$paramArr['OVERHEAD_METHOD'] = getSQLResultInfo($overhead_record_result['DATA'],'method');
 							$paramArr['OVERHEAD_NAME'] = getSQLResultInfo($overhead_record_result['DATA'],'overhead_item');
 							$paramArr['OVERHEAD_TYPE'] = getSQLResultInfo($overhead_record_result['DATA'],'overhead_type');		
+							$paramArr['OVERHEAD_XFER_TO'] = getSQLResultInfo($overhead_record_result['DATA'],'overhead_xfer_to');		
 							$paramArr['USER_ID'] = $user_id;		
 							$paramArr['ITEM'] = getSQLResultInfo($overhead_record_result['DATA'],'overhead_item');		
 							//var_dump($paramArr);

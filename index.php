@@ -107,6 +107,7 @@ $SummaryOutlay = getSQLResultInfo($querySummaryResult['DATA'], 'outlay');
 							
 							$paramArr['MEMO'] = getSQLResultInfo($overhead_record_result['DATA'],'Memo');
 							$paramArr['OVERHEAD_METHOD'] = getSQLResultInfo($overhead_record_result['DATA'],'method');
+							$paramArr['OVERHEAD_XFER_TO'] = getSQLResultInfo($overhead_record_result['DATA'],'overhead_xfer_to');							
 							$paramArr['OVERHEAD_NAME'] = getSQLResultInfo($overhead_record_result['DATA'],'overhead_item');
 							$paramArr['OVERHEAD_TYPE'] = getSQLResultInfo($overhead_record_result['DATA'],'overhead_type');		
 							$paramArr['USER_ID'] = $user_id;		
@@ -135,6 +136,7 @@ $SummaryOutlay = getSQLResultInfo($querySummaryResult['DATA'], 'outlay');
 						$paramArr['IS_NECESSARY'] = "";
 						$paramArr['MEMO'] = "";
 						$paramArr['OVERHEAD_METHOD'] = "";
+						$paramArr['OVERHEAD_XFER_TO'] = "";
 						$paramArr['OVERHEAD_NAME'] = "";
 						$paramArr['OVERHEAD_TYPE'] = "";
 						$paramArr['GUID'] = "";
@@ -224,6 +226,8 @@ function printOverheadHistory($user_id,$overhead_type_radio)
 			
 			$getMoneyImage = '<img src="image/get_money.png" alt="收入" />';
 			$payMoneyImage = '<img src="image/pay.png" alt="支出" />';
+			$xferMoneyImage = '<img src="image/transfer_money.png" alt="轉帳" />';
+			
 			$overheadTimeText = '- <strong>消費時間</strong> <span>:OVERHEAD_TIME</span>';
 			$statisticTimeText = '- <strong>結帳日</strong> <span>:STATISTIC_TIME</span>';
 			$htmlTemplate = '<section>
@@ -263,10 +267,17 @@ function printOverheadHistory($user_id,$overhead_type_radio)
 			if($temp['overhead_category'] == '收入')
 			{
 				$method_img = $getMoneyImage;
+				$xfer_method = "";
+			}
+			else if($temp['overhead_category'] == '轉帳')
+			{
+				$method_img = $xferMoneyImage;	
+				$xfer_method = "→".$temp['overhead_xfer_to'];
 			}
 			else
 			{
 				$method_img = $payMoneyImage;				
+				$xfer_method = "";
 			}
 			
 			if($temp['is_necessary'] == 'T') $is_necessary = '必要';
@@ -277,7 +288,7 @@ function printOverheadHistory($user_id,$overhead_type_radio)
 			
 			
 			$sourceStr = array(":ITEM", ":NT",':OVERHEAD_TIME',':STATISTIC_TIME',':GUID',":METHOD_IMAGE",":OVERHEAD_METHOD",":IS_NECESSARY", ":IS_STATISTIC",":MEMO");
-			$replaceStr   = array($temp['overhead_item'],$nt,$temp['rectime'],$temp['statistic_time'],$temp['guid'],$method_img,$temp['method'], $is_necessary,$is_statistic,$temp['Memo']);
+			$replaceStr   = array($temp['overhead_item'],$nt,$temp['rectime'],$temp['statistic_time'],$temp['guid'],$method_img,$temp['method'].$xfer_method, $is_necessary,$is_statistic,$temp['Memo']);
 			
 			$htmlTemplate = str_replace($sourceStr,$replaceStr,$htmlTemplate);
 			

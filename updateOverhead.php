@@ -20,6 +20,8 @@ $personal_nt = $dataArray['PersonalDollar'];
 $memo = $dataArray['memo'];
 $rectime =  $dataArray['overhead-date'];
 $statistict_time = $dataArray['statistict_time'];
+$overhead_xfer_to = $dataArray['overhead_xfer_to'];
+
 if($personal_nt == "")
 {
 	$personal_nt = $total_nt;
@@ -29,15 +31,15 @@ $user_id = $dataArray['user_id'];
 $guid = $_GET['guid'];
 
 
-$insert_result = updateOverhead($guid, $user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo, $statistict_time,$rectime);
+$update_result = updateOverhead($guid, $user_id,$is_statistic,$is_necessary,$type,$category,$item,$method,$total_nt,$personal_nt,$memo, $statistict_time,$rectime,$overhead_xfer_to);
 
-if($insert_result == "")
+if($update_result == "")
 {
 	$result = json_encode(array("action"=> "updateResult","success" => true ,"err"=>""));
 }
 else
 {
-	$result = json_encode(array("action"=> "updateResult", "success" => false ,"err"=>$insert_result["MSG"]));
+	$result = json_encode(array("action"=> "updateResult", "success" => false ,"err"=>$update_result["MSG"]));
 }
 
 $page = base64_decode($dataArray['page']);

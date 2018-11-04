@@ -1,0 +1,67 @@
+1. create compute engine  -- server1
+2. create sql server
+3. connect to server1 and install php/apache/mysql
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install apache2 php
+sudo apt-get install mysql-server mysql-client
+sudo apt-get install phpmyadmin // press apache (space)
+sudo apt install libapache2-mod-php
+
+//connect sql instance 
+mysql -u user -h sqlserverip -p
+// then enter password
+
+Add sql server access control for server1 access privilege
+4. test connected result 
+show databases; // then u can see all table schema in database
+
+
+Note :
+1. sudo apt-get remove --purge *mysql\*
+2. CREATE USER 'miaw'@'localhost' IDENTIFIED BY '0000'; // 建使用者
+3. grant all privileges on *.* to 'miaw'@'localhost' with grant option; // 先建好databases(accounting)
+4. 下載「PuTTY Key Generator」，下載完畢雙響開啟後，先將下方的模式設為「SSH2 RSA」，接著按再「Generate」，這時就會開始產生金鑰
+5. mount directory
+mkdir /home/miawcodetest/html
+sudo mount --bind /var/www/html/ /home/miawcodetest/html
+6. sudo apt-get install locate
+7. find / -type d -name 'httpdocs'
+8. sudo vi /etc/php/7.0/apache2/php.ini
+short_open_tag=On // 可以讓 php 寫 <? 不用寫 <?phpc
+9. alias ll='ls -l --autocolor'
+10. sudo date -s "2018/07/29 20:40:29"  //改變時區
+
+
+https://templated.co/
+ 
+
+DROP FUNCTION IF EXISTS getpath;
+DELIMITER $$
+CREATE FUNCTION getpath(cat_id INT) RETURNS TEXT  CHARSET utf8
+BEGIN
+    DECLARE res TEXT charset utf8;
+    CALL getpath(cat_id, res);
+    RETURN res;
+END$$
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS getpath;
+DELIMITER $$
+CREATE PROCEDURE getpath(IN cat_id INT, OUT path TEXT CHARSET utf8)
+BEGIN
+    DECLARE catname VARCHAR(1000) charset utf8;
+    DECLARE temppath TEXT charset utf8;
+    DECLARE tempparent INT;
+    SET max_sp_recursion_depth = 255;
+    SELECT name, parent_id FROM products_category WHERE id=cat_id INTO catname, tempparent;
+    IF tempparent IS NULL
+    THEN
+        SET path = catname;
+    ELSE
+        CALL getpath(tempparent, temppath);
+        SET path = CONCAT(temppath, '/', catname);
+    END IF;
+END$$
+DELIMITER ;

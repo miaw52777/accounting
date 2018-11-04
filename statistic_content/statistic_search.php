@@ -54,7 +54,7 @@
 									<select name="overhead_category" id = "overhead_category">
 										<option value="" >-方式-</option>　
 										<?											
-											$overhead_category_list = array(0=>array("value"=>"支出","color"=>"red"), 1=>array("value"=>"收入","color"=>"green"));
+											$overhead_category_list = array(0=>array("value"=>"支出","color"=>"red"), 1=>array("value"=>"收入","color"=>"green"), 2=>array("value"=>"轉帳","color"=>"purple"));
 											
 											for($i=0;$i<count($overhead_category_list);$i++)
 											{											

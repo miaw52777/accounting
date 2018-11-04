@@ -35,7 +35,7 @@ if($mode == "") $mode= 'nt';
 		<meta name="keywords" content="" />
 		<link rel="stylesheet" href="assets/css/main.css" />	
 		<script src="header/table_search.js" type="text/javascript"></script>			
-		<script src="header/account_manage_event.js" type="text/javascript"></script>	
+		<script src="header/home_event.js" type="text/javascript"></script>	
 	</head>
 	
 	<body class="is-preload">
@@ -75,7 +75,7 @@ if($mode == "") $mode= 'nt';
 							  
 							  
 							  <? 
-								$rule_overhead_record = getOverheadRecord_Select_Rule('METHOD',$method);
+								$rule_overhead_record = ' and (method = "'.$method.'" or (overhead_category = "轉帳" and overhead_xfer_to = "'.$method.'") )';
 								$queryResult = getOverheadRawdataNoTime($user_id,$rule_overhead_record);
 							//var_dump($queryResult['SQL']);
 
@@ -95,6 +95,17 @@ if($mode == "") $mode= 'nt';
 									$nt = $temp[$mode];
 									if($temp['overhead_category'] == "收入") $total_income_nt += $nt;
 									if($temp['overhead_category'] == "支出") $total_outlay_nt += $nt;
+									if($temp['overhead_category'] == "轉帳")
+									{
+										if($method == $temp['method'])
+										{
+											$total_income_nt -= $nt; /*轉出*/
+										}
+										else
+										{
+											$total_income_nt += $nt; /*轉入*/
+										}																				
+									}
 									
 									if(($tmpday == "") || ($tmpday != $temp['statistic_time']))
 									{
@@ -147,13 +158,27 @@ if($mode == "") $mode= 'nt';
 										$total_outlay_nt_daily += $nt;
 										$color = "blue";
 									}
+									if($temp['overhead_category'] == "轉帳") 
+									{
+										if($method == $temp['method'])
+										{
+											$total_outlay_nt_daily -= $nt; /*轉出*/
+											$temp['overhead_category'] = '轉出';
+										}
+										else
+										{
+											$total_outlay_nt_daily += $nt; /*轉入*/
+											$temp['overhead_category'] = '轉入';
+										}											
+										$color = "purple";
+									}
 										
 									$recordTmpHtml = '<tr>
 														<td><font color=":COLOR">:OVERHEAD_CATEGORY</font></td>
 														<td>:OVERHEAD_ITEM</td>
 														<td>:NT</td>				
 														<td>
-														<img src="./image/delete.png" id="img_overhead_delete" alt="刪除" title="刪除" onclick="deleteOverhead(\':GUID\');" width="32"> </img>
+														<img src="./image/delete.png" id="img_overhead_delete" alt="刪除" title="刪除" onclick="delOverhead(\':GUID\');" width="32"> </img>
 														
 														<a href="showEditOVerheadForm.php?guid=:GUID&page='.base64_encode($_SERVER['REQUEST_URI'].'#OptionMenu').'"> <img src="./image/edit.png" id="img_overhead_edit" alt="編輯" title="編輯" onclick="showOverhead(\':GUID\');" width="30"> </img></a>
 														</td>
