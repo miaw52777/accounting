@@ -59,11 +59,24 @@ function getOverhead_Account($user_id,$mode, $rule='')
                                                   else 0 end
                                             ) pnt 
                                  from overhead_record z 
-								 where 1=1
+								 where 1=1										
 										and z.user_id = t.user_id 
 										and (z.method = t.name  or (z.overhead_category = "轉帳" and z.overhead_xfer_to = t.name))
 								),0)                       
                         nt_overhead
+						,IFNULL((select sum(case when z.method = t.name and z.overhead_category = "支出" then -1*:MODE  /*支出*/
+                                                  when z.method = t.name and z.overhead_category = "收入" then :MODE    /*收入*/
+                                                  when z.overhead_category = "轉帳" and z.method=t.name then -1*:MODE  /*轉出*/
+                                                  when z.overhead_category = "轉帳" and z.overhead_xfer_to=t.name then :MODE /*轉入*/
+                                                  else 0 end
+                                            ) pnt 
+                                 from overhead_record z 
+								 where 1=1
+										and z.is_statistic = "T"
+										and z.user_id = t.user_id 
+										and (z.method = t.name  or (z.overhead_category = "轉帳" and z.overhead_xfer_to = t.name))
+								),0)                       
+                        nt_overhead_non_statistic
 						,IFNULL(
 								(select                                  
                                  sum((case when z.method = t.name and z.overhead_category = "支出" then -1*:MODE  /*支出*/
@@ -74,11 +87,13 @@ function getOverhead_Account($user_id,$mode, $rule='')
                                  nt 
 								 from overhead_record z 
 								 where 1=1 
+									and z.is_statistic = "T"
 									and z.user_id = t.user_id			
 									and (z.method = t.name  or z.overhead_xfer_to = t.name)	
 									and z.statistic_time like (SELECT DATE_FORMAT(max(a.statistic_time),"%Y-%m%") max_time
 																FROM overhead_record a 
 																WHERE 1=1
+																	
 																	and a.user_id = z.user_id
 																	and a.method = z.method
 																	and (a.method = t.name  or (a.overhead_category = "轉帳" and a.overhead_xfer_to = t.name))
@@ -365,7 +380,7 @@ function SummaryTotalSettlement($user_id)
 			(
 				select 
 				IFNULL((
-					SELECT sum(pnt)  nt
+					SELECT sum(nt)  nt
 					FROM overhead_record
 					where 1=1
 						and overhead_category = '收入'
@@ -373,7 +388,7 @@ function SummaryTotalSettlement($user_id)
 						and is_statistic = 'T'
 				),0) income
 				,IFNULL((
-					SELECT sum(pnt)  nt
+					SELECT sum(nt)  nt
 					FROM overhead_record
 					where 1=1
 						and overhead_category = '支出'

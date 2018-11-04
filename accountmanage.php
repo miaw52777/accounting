@@ -20,6 +20,7 @@ $querySummaryResult = SummaryTotalSettlement($user_id);
 $SummarySettlement = getSQLResultInfo($querySummaryResult['DATA'], 'settlement');
 
 $overhead_type = $_GET['overhead_type'];
+$overhead_type = 'overall'; // lock mode
 if($overhead_type == 'personal')
 {
 	$checked_personal = 'checked';
@@ -71,13 +72,11 @@ else
 						<p>帳戶總計 : <? echo $SummarySettlement; ?></p>		
 					</header>						
 				</div>
-			</section>
-
-			<!-- 帳戶列表 -->
-			<section id="main" class="wrapper" name="main">
-				<div class="inner">
+				
+				<!-- 帳戶列表 -->
+				<div class="inner" style="background-color:white">
 					<div class="content">	
-							 
+							<!-- Option 不顯示 
 							<div class="row" style="text-align:center">
 								<div class="col-6 col-12-small">
 									<input type="radio" id="overhead_type_radio_p" name="overhead_type_radio_p" onclick="radioOverheadtypeSelect('personal');"  <? echo $checked_personal; ?> >
@@ -88,6 +87,7 @@ else
 									<label for="overhead_type_radio_all">全部開銷</label>
 								</div>
 							</div>
+							-->
 							 
 							<input type="text" id="tableInput" onkeyup="table_search_bar('accountTable')" placeholder="Search for names.." title="Type in a name">
 							 
@@ -96,7 +96,7 @@ else
 							  <tr class="header">								
 								<th>名稱</th>	
 								<th>Total 金額</th>
-								<th>最近一個月累積金額</th>
+								<th>Total 金額(含不統計)</th>
 								<th>編輯動作</th>
 							  </tr>
 							  
@@ -104,6 +104,7 @@ else
 							  <?
 								$accout_list = getOverhead_Account($user_id,$mode);
 								$total_nt = 0;
+								$total_nt_non_statistic = 0;
 								$total_nt_last_month = 0;
 								while($temp=mysqli_fetch_assoc($accout_list['DATA']))
 								{		
@@ -112,7 +113,7 @@ else
 															:NAME
 														</td>
 														<td>:NT</td>
-														<td>:MONTH_NT</td>
+														<td>:INCLUDE_NON_STATISTIC_NT</td>
 														<td>
 															
 															<img src="./image/delete.png" id="img_delete" alt="刪除" title="刪除" onclick="deleteAccount(\':ACCOUNT_ID\');" width="32"> </img>
@@ -146,13 +147,21 @@ else
 									}
 													  
 									
-									$nt = $temp['nt'] + $temp['nt_overhead']; // 帳戶起始金額 + 消費金額
-									
+									$nt = $temp['nt'] + $temp['nt_overhead_non_statistic']; // 帳戶起始金額 + 消費金額									
 									$total_nt += $nt;
 									$total_nt_last_month += $temp['nt_overhead_last_month'];
 									
-									$sourceStr = array(":NAME", ":IMAGE",":NT", ":MONTH_NT", ":ACCOUNT_ID",":MODE");
-									$replaceStr   = array($temp['name'],$image,$nt,$temp['nt_overhead_last_month'],$temp['account_id'],$mode);					
+									$nt_non_statistic =  $temp['nt'] + $temp['nt_overhead']; // 帳戶起始金額 + 消費金額(含不列入統計)					
+									$total_nt_non_statistic += $nt_non_statistic;
+									
+									if($nt_non_statistic <> $nt)
+									{
+										$nt_non_statistic_str = '<font color="blue">'.$nt_non_statistic.'</font>';
+									}
+									else $nt_non_statistic_str = $nt_non_statistic;
+									
+									$sourceStr = array(":NAME", ":IMAGE",":NT", ":MONTH_NT", ":ACCOUNT_ID",":MODE", ":INCLUDE_NON_STATISTIC_NT");
+									$replaceStr   = array($temp['name'],$image,$nt,$temp['nt_overhead_last_month'],$temp['account_id'],$mode, $nt_non_statistic_str);					
 									$templateTable = str_replace($sourceStr,$replaceStr,$templateTable);		
 									echo $templateTable;		
 								}
@@ -163,7 +172,7 @@ else
 								<tr>
 									<td>Total</td>
 									<td><? echo $total_nt; ?></td>
-									<td><? echo $total_nt_last_month; ?></td>
+									<td><? echo $total_nt_non_statistic; ?></td>
 									<td></td>															
 								</tr>
 							</tfoot>
@@ -172,8 +181,10 @@ else
 						 
 					</div>
 				</div>
+				<!-- 帳戶列表 End-->
+				
+			
 			</section>
-
 			
 			<? 
 				require_once('./header/footer.php'); 						

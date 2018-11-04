@@ -157,7 +157,7 @@ $SummaryOutlay = getSQLResultInfo($querySummaryResult['DATA'], 'outlay');
 									
 						<?	
 							$overhead_type_radio = $_GET['overhead_type_radio'];	
-							if($overhead_type_radio == "") $overhead_type_radio='personal';
+							if($overhead_type_radio == "") $overhead_type_radio='overall';
 							$overhead_type_radioHtml = '
 														<div class="col-4 col-12-small">
 															<input type="radio" id="overhead_type_radio_p" name="overhead_type_radio" onclick="radioOverheadtypeSelect(\'personal\');" :P_CHECK>
@@ -183,7 +183,7 @@ $SummaryOutlay = getSQLResultInfo($querySummaryResult['DATA'], 'outlay');
 			
 							$overhead_type_radioHtml = str_replace($sourceStr,$replaceStr,$overhead_type_radioHtml);
 							
-							echo $overhead_type_radioHtml;
+							//echo $overhead_type_radioHtml; // hide option mode
 						?>											
 					
 				

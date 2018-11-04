@@ -50,31 +50,32 @@ function generateOverheadForm($action, $paramArr)
 					
 					$htmlTemplate .= '
 					<div class="row gtr-uniform">
-						 <div class="col-4">							
+						 <div class="col-6">							
 								 <select name="overhead_type" id="overhead_type" onchange="overhead_type_change(this.value, \':OPTION_STR\');"> 
 								 :OVERHEADTYPE_HTML
 								</select>							
 						</div>	
-						<div class="col-4 col-12-xsmall">					 							 
+						<div class="col-6 col-12-xsmall">					 							 
 								 <select id="sel_overhead_Item" onchange = "sel_overhead_Item_change(this.value,\':OPTION_STR\');">
 								  <option value="">-Select-</option>	
 									:OVERHEAD_ITEM_HTML									 
 								</select>  
 						</div>
-						<div class="col-4 col-12-xsmall">
-								<input name="overhead_Item" id="overhead_Item" type="text" size="10" placeholder="* 項目" Autofocus="on" required value=":ITEM" onchange = "overhead_Item_text_change(\':OPTION_STR\')"/>
-						 
-						</div>						
+											
 					</div>	
 					
 					<br>
 					
 					<div class="row gtr-uniform">
+							<div class="col-6 col-12-xsmall">
+								<input name="overhead_Item" id="overhead_Item" type="text" size="10" placeholder="* 項目" Autofocus="on" required value=":ITEM" onchange = "overhead_Item_text_change(\':OPTION_STR\')"/>
+						 
+							</div>	
 							<div class="col-6 col-12-xsmall">						 
 								<input name="overheadDollar" id="overheadDollar" type="text" size="10" onchange="checkIsNum(this);" placeholder="* 開銷總額 NT$" required value= ":NT"/>
 							</div> 
 							<div class="col-6 col-12-xsmall">	
-								<input name="PersonalDollar" id="PersonalDollar" type="text" size="10" placeholder="個人開銷金額 PNT$" onchange="checkIsNum(this);" value= ":PNT"/>
+								<input name="PersonalDollar" id="PersonalDollar" type="hidden" size="10" placeholder="個人開銷金額 PNT$" onchange="checkIsNum(this);" value= ":PNT"/>
 								 <br>
 							 </div>
 					 </div>
